@@ -191,7 +191,7 @@ export default function ServicesSection() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
-          className="mt-12 sm:mt-16 md:mt-20 grid grid-cols-1 gap-4 sm:gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-12 sm:mt-16 md:mt-20 grid grid-cols-2 gap-4 sm:gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3"
         >
           {services.map((item, idx) => (
             <motion.div

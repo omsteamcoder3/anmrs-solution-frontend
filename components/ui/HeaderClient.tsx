@@ -250,14 +250,10 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
                     width={40}
                     height={40}
                     priority
-                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain"
+                    className="w-30 h-30 sm:w-40 sm:h-40  object-contain"
                   />
                 </div>
-                <div className="flex flex-col">
-                  <span className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-black text-white tracking-tight leading-tight ${markoOne.className}`}>
-                    {siteNameMain} <span className="text-orange-400">{siteNameTagline}</span>
-                  </span>
-                </div>
+               
               </Link>
 
               {/* Desktop Navigation - Hidden on mobile/tablet */}
