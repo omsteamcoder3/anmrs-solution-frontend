@@ -108,7 +108,7 @@ export default function WhyChooseUsSection() {
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: false, amount: 0.3 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.43, 0.13, 0.23, 0.96] }}
-              className="text-base sm:text-lg md:text-lg lg:text-xl font-bold leading-relaxed text-gray-600 break-words"
+              className="text-base sm:text-lg md:text-lg lg:text-xl  leading-relaxed text-gray-600 break-words"
             >
               Experience seamless online shopping for all your security and identification needs. Our e-commerce platform offers secure payments, real-time tracking, and exceptional customer service.
             </motion.p>
@@ -135,7 +135,7 @@ export default function WhyChooseUsSection() {
                   >
                     <CheckCircle2 size={20} className="sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-9 lg:h-9" />
                   </motion.div>
-                  <span className="text-sm sm:text-base md:text-base lg:text-lg font-bold text-gray-800 break-words flex-1">{reason}</span>
+                  <span className="text-sm sm:text-base md:text-base lg:text-lg  text-gray-800 break-words flex-1">{reason}</span>
                 </motion.li>
               ))}
             </motion.ul>

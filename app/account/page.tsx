@@ -240,7 +240,7 @@ const BankAccountPage: React.FC = () => {
                 <div className="p-2 bg-[#008080]/10 rounded-lg mr-4">
                   <Building className="w-6 h-6 text-[#008080]" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Bank Account Details</h2>
+                <h2 className="text-2xl  text-gray-900">Bank Account Details</h2>
               </div>
               
               <div className="space-y-6">
@@ -310,7 +310,7 @@ const BankAccountPage: React.FC = () => {
                           <div className="flex items-center gap-3">
                             <Hash className="w-5 h-5 text-gray-400" />
                             <div className="flex items-center gap-2">
-                              <p className="text-xl font-mono font-bold text-gray-900 tracking-wider">
+                              <p className="text-xl font-mono  text-gray-900 tracking-wider">
                                 {showAccountNumber ? formatAccountNumber(bankDetails.accountNumber) : bankDetails.accountNumber}
                               </p>
                               <button
@@ -378,7 +378,7 @@ const BankAccountPage: React.FC = () => {
                 <div className="p-2 bg-[#008080]/10 rounded-lg mr-4">
                   <Smartphone className="w-6 h-6 text-[#008080]" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Digital Payment Methods</h2>
+                <h2 className="text-2xl  text-gray-900">Digital Payment Methods</h2>
               </div>
               
               <div className="space-y-8">
@@ -498,7 +498,7 @@ const BankAccountPage: React.FC = () => {
                 <div className="p-2 bg-[#008080]/10 rounded-lg mr-4">
                   <Code className="w-6 h-6 text-[#008080]" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Bank Codes & Information</h2>
+                <h2 className="text-2xl  text-gray-900">Bank Codes & Information</h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -511,7 +511,7 @@ const BankAccountPage: React.FC = () => {
                       <h3 className="font-semibold text-gray-900">IFSC Code</h3>
                     </div>
                     <div className="flex justify-between items-center mb-3">
-                      <p className="text-2xl font-mono font-bold text-gray-900 uppercase tracking-wider">
+                      <p className="text-2xl font-mono  text-gray-900 uppercase tracking-wider">
                         {bankDetails.ifscCode}
                       </p>
                       <button
@@ -539,7 +539,7 @@ const BankAccountPage: React.FC = () => {
                       <h3 className="font-semibold text-gray-900">SWIFT/BIC Code</h3>
                     </div>
                     <div className="flex justify-between items-center mb-3">
-                      <p className="text-2xl font-mono font-bold text-gray-900 uppercase tracking-wider">
+                      <p className="text-2xl font-mono  text-gray-900 uppercase tracking-wider">
                         {bankDetails.swiftCode}
                       </p>
                       <button
@@ -567,7 +567,7 @@ const BankAccountPage: React.FC = () => {
                       <h3 className="font-semibold text-gray-900">MICR Code</h3>
                     </div>
                     <div className="flex justify-between items-center mb-3">
-                      <p className="text-2xl font-mono font-bold text-gray-900">
+                      <p className="text-2xl font-mono  text-gray-900">
                         {bankDetails.micrCode}
                       </p>
                       <button
@@ -610,7 +610,7 @@ const BankAccountPage: React.FC = () => {
                 <div className="p-2 bg-[#008080]/10 rounded-lg mr-4">
                   <MapPin className="w-6 h-6 text-[#008080]" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Bank Address</h2>
+                <h2 className="text-2xl  text-gray-900">Bank Address</h2>
               </div>
               
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6">

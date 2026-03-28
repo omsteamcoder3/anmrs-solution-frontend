@@ -426,7 +426,7 @@ export default function ClientProductDetail({ product, randomProducts }: ClientP
     return (
       <div className="min-h-screen bg-orange-400 flex items-center justify-center">
         <div className="text-center bg-white p-6 rounded-lg shadow-lg">
-          <h1 className="text-xl font-bold text-black">Product not found</h1>
+          <h1 className="text-xl  text-black">Product not found</h1>
           <p className="text-gray-700 mt-2">The product you are looking for does not exist.</p>
         </div>
       </div>
@@ -452,7 +452,7 @@ export default function ClientProductDetail({ product, randomProducts }: ClientP
                 </svg>
               </button>
               <div>
-                <h1 className="text-lg sm:text-xl font-bold text-black line-clamp-1">{product.name}</h1>
+                <h1 className="text-lg sm:text-xl  text-black line-clamp-1">{product.name}</h1>
                 <div className="flex items-center gap-2 text-xs text-black/70">
                   <span>Home</span>
                   <span>/</span>
@@ -464,10 +464,10 @@ export default function ClientProductDetail({ product, randomProducts }: ClientP
             </div>
             <div className="flex items-center gap-2">
               {product.hasOffer && (
-                <span className="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-full">HOT OFFER</span>
+                <span className="px-3 py-1 bg-green-500 text-white text-xs  rounded-full">HOT OFFER</span>
               )}
               {product.featured && (
-                <span className="px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full">FEATURED</span>
+                <span className="px-3 py-1 bg-orange-500 text-white text-xs  rounded-full">FEATURED</span>
               )}
             </div>
           </div>
@@ -561,7 +561,7 @@ export default function ClientProductDetail({ product, randomProducts }: ClientP
                 
                 {/* Product Title & Meta */}
                 <div>
-                  <h1 className="text-2xl lg:text-3xl font-bold text-black mb-2">
+                  <h1 className="text-2xl lg:text-3xl  text-black mb-2">
                     {product.name}
                     {selectedVariant && (
                       <span className="text-lg font-normal text-gray-600 ml-2">
@@ -587,7 +587,7 @@ export default function ClientProductDetail({ product, randomProducts }: ClientP
                 {/* Price Section */}
                 <div className="bg-orange-50 p-4 rounded-xl">
                   <div className="flex items-baseline gap-3 flex-wrap">
-                    <span className="text-3xl lg:text-4xl font-bold text-black">
+                    <span className="text-3xl lg:text-4xl  text-black">
                       ₹{displayPrice.toLocaleString('en-IN')}
                     </span>
                     {originalPrice && originalPrice > displayPrice && (
@@ -595,7 +595,7 @@ export default function ClientProductDetail({ product, randomProducts }: ClientP
                         <span className="text-lg text-gray-500 line-through">
                           ₹{originalPrice.toLocaleString('en-IN')}
                         </span>
-                        <span className="text-sm font-bold text-green-600 bg-green-100 px-2 py-1 rounded">
+                        <span className="text-sm  text-green-600 bg-green-100 px-2 py-1 rounded">
                           {discountPercentage}% OFF
                         </span>
                       </>
@@ -790,7 +790,7 @@ export default function ClientProductDetail({ product, randomProducts }: ClientP
                 {product.rating > 0 && (
                   <div className="flex items-center gap-4 border-t border-gray-200 pt-4">
                     <div className="flex items-center">
-                      <span className="text-lg font-bold text-gray-900">{product.rating}</span>
+                      <span className="text-lg  text-gray-900">{product.rating}</span>
                       <div className="flex ml-1">
                         {[...Array(5)].map((_, i) => (
                           <svg key={i} className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'text-orange-500' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
@@ -811,7 +811,7 @@ export default function ClientProductDetail({ product, randomProducts }: ClientP
           {/* Related Products */}
           {randomProducts && randomProducts.length > 0 && (
             <div className="mt-8">
-              <h2 className="text-xl font-bold text-black mb-4">You May Also Like</h2>
+              <h2 className="text-xl  text-black mb-4">You May Also Like</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {randomProducts.slice(0, 4).map((relatedProduct) => (
                   <ProductCard key={relatedProduct._id} product={relatedProduct} />

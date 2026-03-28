@@ -378,7 +378,7 @@ export default function UserProfile() {
       <div className="container mx-auto px-4">
         {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
+          <h1 className="text-3xl  text-gray-900">My Profile</h1>
           <p className="text-gray-600 mt-1">Manage your account and orders</p>
         </div>
 
@@ -390,7 +390,7 @@ export default function UserProfile() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">No orders yet</h3>
+              <h3 className="text-2xl  text-gray-900 mb-2">No orders yet</h3>
               <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
               <button
                 onClick={() => router.push('/products')}

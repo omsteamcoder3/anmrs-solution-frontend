@@ -606,7 +606,7 @@ const handleCashOnDelivery = async (): Promise<void> => {
       <div className="container mx-auto px-4 sm:px-6">
         {/* Header with responsive flex layout */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Checkout</h1>
+          <h1 className="text-2xl sm:text-3xl  text-gray-900">Checkout</h1>
           {!user && (
             <div className="bg-[rgb(223,89,0)]/10 border border-[rgb(223,89,0)]/20 text-[rgb(223,89,0)] px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm">
               <p>

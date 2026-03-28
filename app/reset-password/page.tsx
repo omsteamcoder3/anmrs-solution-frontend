@@ -18,7 +18,7 @@ export default async function ResetPasswordPage({ searchParams }: PageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600">Invalid Reset Link</h1>
+          <h1 className="text-2xl  text-red-600">Invalid Reset Link</h1>
           <p className="mt-2 text-gray-600">The reset link is missing or invalid.</p>
         </div>
       </div>

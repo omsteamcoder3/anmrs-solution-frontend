@@ -103,7 +103,7 @@ export default function EnquirySection() {
                   <Phone size={20} className="sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-9 lg:h-9" />
                 </motion.div>
                 <div>
-                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-500">Order Support</p>
+                  <p className="text-[10px] sm:text-xs  uppercase tracking-widest text-gray-500">Order Support</p>
                   <motion.p 
                     animate={{ 
                       color: ["#ffffff", "#f97316", "#ffffff"],
@@ -157,7 +157,7 @@ export default function EnquirySection() {
                     type="text"
                     required
                     placeholder="Enter your name"
-                    className="w-full border-b-2 border-white/20 bg-transparent py-2 sm:py-3 md:py-4 text-base sm:text-lg md:text-xl font-bold transition-colors focus:border-orange-400 focus:outline-none placeholder:text-gray-600"
+                    className="w-full border-b-2 border-white/20 bg-transparent py-2 sm:py-3 md:py-4 text-base sm:text-lg md:text-xl  transition-colors focus:border-orange-400 focus:outline-none placeholder:text-gray-600"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
@@ -181,7 +181,7 @@ export default function EnquirySection() {
                       type="tel"
                       required
                       placeholder="+91 98844 96177"
-                      className="w-full border-b-2 border-white/20 bg-transparent py-2 sm:py-3 md:py-4 text-base sm:text-lg md:text-xl font-bold transition-colors focus:border-orange-400 focus:outline-none placeholder:text-gray-600"
+                      className="w-full border-b-2 border-white/20 bg-transparent py-2 sm:py-3 md:py-4 text-base sm:text-lg md:text-xl  transition-colors focus:border-orange-400 focus:outline-none placeholder:text-gray-600"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     />
@@ -200,7 +200,7 @@ export default function EnquirySection() {
                     <motion.select
                       whileFocus={{ scale: 1.02, borderColor: "#f97316" }}
                       transition={{ duration: 0.2 }}
-                      className="w-full border-b-2 border-white/20 bg-black py-2 sm:py-3 md:py-4 text-base sm:text-lg md:text-xl font-bold transition-colors focus:border-orange-400 focus:outline-none text-white"
+                      className="w-full border-b-2 border-white/20 bg-black py-2 sm:py-3 md:py-4 text-base sm:text-lg md:text-xl  transition-colors focus:border-orange-400 focus:outline-none text-white"
                       value={formData.product}
                       onChange={(e) => setFormData({ ...formData, product: e.target.value })}
                     >
@@ -240,7 +240,7 @@ export default function EnquirySection() {
                     transition={{ duration: 0.2 }}
                     rows={3}
                     placeholder="Tell us about your requirements - quantity, design specifications, timeline, or any questions about bulk orders"
-                    className="w-full border-b-2 border-white/20 bg-transparent py-2 sm:py-3 md:py-4 text-base sm:text-lg md:text-xl font-bold transition-colors focus:border-orange-400 focus:outline-none placeholder:text-gray-600 resize-none"
+                    className="w-full border-b-2 border-white/20 bg-transparent py-2 sm:py-3 md:py-4 text-base sm:text-lg md:text-xl  transition-colors focus:border-orange-400 focus:outline-none placeholder:text-gray-600 resize-none"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   />

@@ -17,7 +17,7 @@ export default function PageHeader({ title, subtitle }: PageHeaderProps) {
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-3 sm:mt-4 md:mt-6 text-xs sm:text-sm md:text-base lg:text-xl font-bold uppercase tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.2em] text-orange-400 break-words">
+            <p className="mt-3 sm:mt-4 md:mt-6 text-xs sm:text-sm md:text-base lg:text-xl  uppercase tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.2em] text-orange-400 break-words">
               {subtitle}
             </p>
           )}

@@ -13,7 +13,7 @@ export default function MissionVisionSection() {
               <h4 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter leading-tight sm:leading-tight md:leading-none break-words">
                 EMPOWERING <br className="hidden xs:block" /> GROWERS
               </h4>
-              <p className="text-base sm:text-lg md:text-xl font-bold leading-relaxed text-gray-700 break-words">
+              <p className="text-base sm:text-lg md:text-xl  leading-relaxed text-gray-700 break-words">
                 To support farmers and businesses by providing reliable tractors, honest guidance, and dependable
                 after-sales service. Helping improve productivity through quality products and builds long-term
                 relationships based on trust.
@@ -30,7 +30,7 @@ export default function MissionVisionSection() {
               <h4 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter leading-tight sm:leading-tight md:leading-none break-words">
                 LEADING THE <br className="hidden xs:block" /> AGRICULTURE
               </h4>
-              <p className="text-base sm:text-lg md:text-xl font-bold leading-relaxed text-gray-400 break-words">
+              <p className="text-base sm:text-lg md:text-xl  leading-relaxed text-gray-400 break-words">
                 To become a leading and most trusted tractor dealership in the region, recognized for service
                 excellence, customer satisfaction, and ethical business practices. Contributing to the growth of
                 agriculture by delivering modern machinery.

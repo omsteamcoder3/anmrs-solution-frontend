@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Viga } from 'next/font/google';
+import { useEffect, useState, useRef } from 'react';
+import { Roboto_Flex } from 'next/font/google';
 import { Category } from '@/types/category';
 import ProductGrid from '@/components/products/ProductGrid';
 import { getAllProducts, fetchActiveCategories } from '@/lib/api';
 
-const agbalumo = Viga({
+const agbalumo = Roboto_Flex({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',
@@ -19,7 +19,8 @@ interface ProductSectionProps {
 export default function ProductSection({ featuredCategories }: ProductSectionProps) {
   const [categoriesWithProducts, setCategoriesWithProducts] = useState<string[]>([]);
   const [checkingProducts, setCheckingProducts] = useState(true);
-
+  const [productCounts, setProductCounts] = useState<Record<string, number>>({});
+  
   useEffect(() => {
     fetchActiveCategories().then(data => {
       console.log("Categories from API:", data);
@@ -34,18 +35,25 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
         const response = await getAllProducts({});
         const products = response.data || [];
 
-        const categoryIds = new Set(
-          products.map((p: any) => {
-            const cat = typeof p.category === 'object'
-              ? p.category._id
-              : p.category;
+        const categoryIds = new Set<string>();
+        const counts: Record<string, number> = {};
 
-            return cat?.toString();
-          })
-        );
+        products.forEach((p: any) => {
+          const cat = typeof p.category === 'object'
+            ? p.category._id
+            : p.category;
+          
+          const catId = cat?.toString();
+          if (catId) {
+            categoryIds.add(catId);
+            counts[catId] = (counts[catId] || 0) + 1;
+          }
+        });
+        
         console.log("Category IDs found in products:", Array.from(categoryIds));
         console.log("Featured Categories:", featuredCategories);
         setCategoriesWithProducts(Array.from(categoryIds));
+        setProductCounts(counts);
       } catch (error) {
         console.error('Error checking categories:', error);
       } finally {
@@ -66,7 +74,6 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
       <section className="py-16 md:py-20 bg-orange-400" aria-label="Loading Products">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-center min-h-[200px] sm:min-h-[300px]">
-            {/* Animated loading indicator */}
             <div className="relative">
               <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
             </div>
@@ -103,8 +110,6 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
 
   return (
     <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-orange-400 relative overflow-hidden" aria-label="Explore Our Products">
-     
-
       {/* Decorative circles background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
@@ -114,7 +119,6 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative">
         {/* Section Header */}
         <div className="text-center mb-8 sm:mb-12 md:mb-16 lg:mb-20">
-          {/* Decorative element */}
           <div className="flex justify-center mb-3 sm:mb-4">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-4 sm:w-6 md:w-8 h-0.5 bg-white/40"></div>
@@ -125,18 +129,15 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
             </div>
           </div>
 
-          {/* Main Title */}
           <h2 className={`${agbalumo.className} text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-white mb-2 sm:mb-3 md:mb-4 tracking-tight px-2 drop-shadow-lg`}>
             Explore Our Products
           </h2>
 
-          {/* Subtitle */}
           <p className="text-white/80 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl max-w-3xl mx-auto leading-relaxed px-3 sm:px-4 drop-shadow">
             Discover our handpicked collection of premium quality cups and bags, 
             designed to complement your lifestyle
           </p>
 
-          {/* Decorative line */}
           <div className="flex justify-center mt-4 sm:mt-5 md:mt-6">
             <div className="w-16 sm:w-20 md:w-24 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-full"></div>
           </div>
@@ -144,43 +145,72 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
 
         {/* Categories */}
         <div className="space-y-12 sm:space-y-16 md:space-y-20 lg:space-y-24">
-          {visibleCategories.map((category, index) => (
-            <div 
-              key={category._id} 
-              className="animate-fade-in-up" 
-              style={{ 
-                animationDelay: `${index * 200}ms`,
-                animationFillMode: 'both'
-              }}
-            >
-              {/* Category Header */}
-              <div className="ml-0 sm:ml-4 md:ml-8 lg:ml-14 mb-6 sm:mb-8 md:mb-10 text-left">
-                <h3
-                  className={`${agbalumo.className} text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-2 sm:mb-3 px-3 sm:px-0 drop-shadow-lg`}
-                >
-                  {category.name}
-                </h3>
+          {visibleCategories.map((category, index) => {
+            const productCount = productCounts[category._id.toString()] || 0;
+            const useCarousel = productCount > 3;
+            
+            return (
+              <div 
+                key={category._id} 
+                className="animate-fade-in-up" 
+                style={{ 
+                  animationDelay: `${index * 200}ms`,
+                  animationFillMode: 'both'
+                }}
+              >
+                {/* Category Header */}
+                <div className="ml-0 sm:ml-4 md:ml-8 lg:ml-14 mb-6 sm:mb-8 md:mb-10 text-left">
+                  <div className="flex items-center justify-between flex-wrap gap-3">
+                    <h3
+                      className={`${agbalumo.className} text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-2 sm:mb-3 px-3 sm:px-0 drop-shadow-lg`}
+                    >
+                      {category.name}
+                    </h3>
+                    {useCarousel && (
+                      <div className="flex gap-2 px-3">
+                        <button
+                          className={`prev-${category._id} w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all duration-300`}
+                          aria-label="Previous products"
+                        >
+                          ←
+                        </button>
+                        <button
+                          className={`next-${category._id} w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all duration-300`}
+                          aria-label="Next products"
+                        >
+                          →
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
-                {/* Decorative underline */}
-                <div className="flex justify-left">
-                  <div className="w-12 sm:w-16 md:w-20 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-full"></div>
+                  {/* Decorative underline */}
+                  <div className="flex justify-left">
+                    <div className="w-12 sm:w-16 md:w-20 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-full"></div>
+                  </div>
+                  
+                  {useCarousel && (
+                    <p className="text-white/60 text-xs sm:text-sm mt-2 px-3">
+                      {productCount} products available • Scroll to see more
+                    </p>
+                  )}
+                </div>
+
+                {/* Product Grid with Carousel support */}
+                <div className="backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8">
+                  <ProductGrid 
+                    category={category._id} 
+                    limit={8} 
+                    hideFilters={true}
+                    useCarousel={useCarousel}
+                    categoryId={category._id}
+                  />
                 </div>
               </div>
-
-              {/* Product Grid - wrapped in white background container for contrast */}
-              <div className=" backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8 ">
-                <ProductGrid 
-                  category={category._id} 
-                  limit={8} 
-                  hideFilters={true}
-                />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
-
- 
     </section>
   );
 }

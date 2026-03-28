@@ -46,7 +46,7 @@ export default function ContactPage() {
                   <MapPin className="mb-4 sm:mb-6 text-orange-400" size={32} />
                 </motion.div>
                 <h4 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-black uppercase">Our Location</h4>
-                <p className="text-sm sm:text-base font-bold text-gray-500 group-hover:text-gray-400">
+                <p className="text-sm sm:text-base  text-gray-500 group-hover:text-gray-400">
                   No.4A 3rd Street, Sanjay Gandhi Nagar, <br className="hidden xs:block" />
                   Chromepet, Chennai, <br className="hidden xs:block" />
                   Tamil Nadu - 600044
@@ -89,7 +89,7 @@ export default function ContactPage() {
                 >
                   98844 96177
                 </motion.p>
-                <p className="mt-2 text-sm sm:text-base font-bold text-gray-500 group-hover:text-gray-400">Mon-Sat, 9am - 7pm</p>
+                <p className="mt-2 text-sm sm:text-base  text-gray-500 group-hover:text-gray-400">Mon-Sat, 9am - 7pm</p>
               </motion.div>
 
               {/* Email Card */}
@@ -114,8 +114,8 @@ export default function ContactPage() {
                   <Mail className="mb-4 sm:mb-6 text-orange-400" size={32} />
                 </motion.div>
                 <h4 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-black uppercase">Email Us</h4>
-                <p className="text-lg sm:text-xl font-bold text-orange-400 break-all">id@anmrs.com</p>
-                <p className="mt-2 text-sm sm:text-base font-bold text-gray-500 group-hover:text-gray-400 break-all">www.anmrs.com</p>
+                <p className="text-lg sm:text-xl  text-orange-400 break-all">id@anmrs.com</p>
+                <p className="mt-2 text-sm sm:text-base  text-gray-500 group-hover:text-gray-400 break-all">www.anmrs.com</p>
               </motion.div>
 
               {/* Hours Card */}
@@ -140,7 +140,7 @@ export default function ContactPage() {
                   <Clock className="mb-4 sm:mb-6 text-orange-400" size={32} />
                 </motion.div>
                 <h4 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-black uppercase">Opening Hours</h4>
-                <div className="space-y-2 sm:space-y-1 font-bold text-gray-500 group-hover:text-gray-400">
+                <div className="space-y-2 sm:space-y-1  text-gray-500 group-hover:text-gray-400">
                   <motion.p 
                     whileHover={{ x: 5 }}
                     className="flex flex-col xs:flex-row justify-between gap-1 text-sm sm:text-base"

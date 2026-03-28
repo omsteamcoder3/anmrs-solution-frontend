@@ -7,11 +7,11 @@ import { useState, useEffect, useRef } from 'react';
 import { quickSearchProducts } from '@/lib/productService';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Viga } from 'next/font/google';
+import { Roboto_Flex} from 'next/font/google';
 import { ArrowRight, ShoppingCart, User, Search, Menu, X, Home, Info, Mail, Package, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const markoOne = Viga({
+const markoOne = Roboto_Flex({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',
@@ -238,7 +238,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
     <>
       {/* Main Header - Black background with orange accents */}
       <div className="xl:sticky xl:top-0 z-40 w-full overflow-hidden">
-        <header className="bg-black shadow-lg shadow-black/50 border-b border-white/10 font-sans w-full">
+        <header className="bg-black shadow-lg shadow-black/50 border-b border-white/10  w-full">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6 max-w-full">
             <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24 w-full">
               {/* Logo - Left side */}
@@ -386,7 +386,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
                             <button
                               type="submit"
                               onClick={handleSearchSubmit}
-                              className="p-2 bg-orange-400 hover:bg-orange-500 text-black font-bold rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-orange-400/25 flex-shrink-0"
+                              className="p-2 bg-orange-400 hover:bg-orange-500 text-black  rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-orange-400/25 flex-shrink-0"
                               aria-label="Search"
                             >
                               <Search className="w-4 h-4" />
@@ -494,7 +494,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
                           
                             <button
                               type="submit"
-                              className="p-1.5 bg-orange-400 hover:bg-orange-500 text-black font-bold rounded-md transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-orange-400/25 flex-shrink-0"
+                              className="p-1.5 bg-orange-400 hover:bg-orange-500 text-black  rounded-md transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-orange-400/25 flex-shrink-0"
                               aria-label="Search"
                             >
                               <Search className="w-3.5 h-3.5" />

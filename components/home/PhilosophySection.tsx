@@ -3,8 +3,72 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ShoppingBag, CreditCard, Truck, Tag, Package, Shield } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
 
 export default function PhilosophySection() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [cardWidth, setCardWidth] = useState(0);
+const categories = [
+  { name: "ID Cards", image: "/images/j1.webp" },
+  { name: "RFID Cards", image: "/images/j2.webp" },
+  { name: "PVC Cards", image: "/images/j3.webp" },
+  { name: "Access Cards", image: "/images/j4.webp" },
+  { name: "NFC Cards", image: "/images/j5.webp" },
+  { name: "Lanyards", image: "/images/j6.webp" },
+  { name: "Flex Printing", image: "/images/j7.webp" },
+  { name: "Hording Print", image: "/images/j8.webp" },
+  { name: "Access Control", image: "/images/j9.webp" },
+  { name: "CCTV Systems", image: "/images/j10.webp" },
+  { name: "Graphic Design", image: "/images/j11.webp" },
+];
+
+  // Triple the array for infinite scroll
+  const loopCategories = [...categories, ...categories, ...categories];
+
+  useEffect(() => {
+    const updateCardWidth = () => {
+      if (containerRef.current) {
+        const container = containerRef.current.parentElement;
+        if (container) {
+          const containerWidth = container.clientWidth;
+          const gapSize = 12;
+          // Show 3-5 items based on screen size
+          let itemsToShow = 5;
+          if (window.innerWidth < 640) itemsToShow = 2;
+          else if (window.innerWidth < 768) itemsToShow = 3;
+          else if (window.innerWidth < 1024) itemsToShow = 4;
+          else itemsToShow = 5;
+          
+          const width = (containerWidth - (gapSize * (itemsToShow - 1))) / itemsToShow;
+          setCardWidth(width);
+        }
+      }
+    };
+    
+    updateCardWidth();
+    window.addEventListener('resize', updateCardWidth);
+    return () => window.removeEventListener('resize', updateCardWidth);
+  }, []);
+
+  useEffect(() => {
+    if (isHovered) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex(prev => prev + 1);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [isHovered]);
+
+  const getTranslateValue = () => {
+    if (cardWidth === 0) return 0;
+    const gapSize = 12;
+    const slideDistance = cardWidth + gapSize;
+    return -(currentIndex * slideDistance);
+  };
+
   return (
     <section className="w-full py-12 sm:py-14 md:py-16 lg:py-24 bg-black" aria-label="Our E-Commerce Store">
       <div className="container mx-auto px-4 sm:px-5 md:px-6">
@@ -101,7 +165,7 @@ export default function PhilosophySection() {
                     <CreditCard className="w-5 h-5 text-orange-400" />
                   </div>
                   <div>
-                    <p className="text-white font-bold">Secure Payments</p>
+                    <p className="text-white ">Secure Payments</p>
                     <p className="text-xs text-gray-400">Razorpay • UPI • COD</p>
                   </div>
                 </div>
@@ -110,7 +174,7 @@ export default function PhilosophySection() {
                     <Truck className="w-5 h-5 text-orange-400" />
                   </div>
                   <div>
-                    <p className="text-white font-bold">Fast Shipping</p>
+                    <p className="text-white ">Fast Shipping</p>
                     <p className="text-xs text-gray-400">PAN India Delivery</p>
                   </div>
                 </div>
@@ -119,7 +183,7 @@ export default function PhilosophySection() {
                     <Tag className="w-5 h-5 text-orange-400" />
                   </div>
                   <div>
-                    <p className="text-white font-bold">Offers & Discounts</p>
+                    <p className="text-white ">Offers & Discounts</p>
                     <p className="text-xs text-gray-400">Coupons • Bulk Deals</p>
                   </div>
                 </div>
@@ -128,7 +192,7 @@ export default function PhilosophySection() {
                     <Package className="w-5 h-5 text-orange-400" />
                   </div>
                   <div>
-                    <p className="text-white font-bold">Track Orders</p>
+                    <p className="text-white ">Track Orders</p>
                     <p className="text-xs text-gray-400">Real-time Updates</p>
                   </div>
                 </div>
@@ -155,9 +219,7 @@ export default function PhilosophySection() {
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
                 
-            </div>
-
- 
+              </div>
             </div>
 
             {/* Decorative Elements */}
@@ -165,7 +227,7 @@ export default function PhilosophySection() {
           </motion.div>
         </div>
 
-        {/* Bottom Product Categories */}
+        {/* Bottom Product Categories Carousel */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -173,30 +235,58 @@ export default function PhilosophySection() {
           transition={{ duration: 0.5, delay: 0.8 }}
           className="mt-12 pt-8 border-t border-gray-800"
         >
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-            {[
-              "ID Cards",
-              "RFID Cards",
-              "PVC Cards",
-              "Access Cards",
-              "NFC Cards",
-              "Lanyards",
-              "Flex Printing",
-              "Hording Print",
-              "Access Control",
-              "CCTV Systems",
-              "Graphic Design"
-            ].map((category, index) => (
-              <span 
-                key={index}
-                className="text-xs sm:text-sm px-3 py-1.5 bg-gray-900 text-gray-300 rounded-full hover:bg-orange-400 hover:text-black transition-colors duration-300 cursor-default"
-              >
-                {category}
-              </span>
-            ))}
+          <div className="flex justify-between items-center mb-4">
+     
+
           </div>
+
+          <div 
+            className="relative overflow-hidden"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="overflow-hidden">
+              <motion.div
+                ref={containerRef}
+                className="flex gap-3"
+                animate={{ x: getTranslateValue() }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                style={{ width: 'max-content' }}
+              >
+     {loopCategories.map((category, idx) => (
+  <motion.div
+    key={`${category.name}-${idx}`}
+    whileHover={{
+      scale: 1.05,
+      backgroundColor: "#f97316",
+      color: "#000000",
+    }}
+    className="flex flex-col items-center justify-center gap-2 px-3 py-3 bg-gray-900 text-gray-300 rounded-lg hover:bg-orange-400 hover:text-black transition-all duration-300 cursor-pointer"
+    style={{
+      width: cardWidth ? `${cardWidth}px` : "auto",
+    }}
+  >
+    <div className="relative w-10 h-10">
+      <Image
+        src={category.image}
+        alt={category.name}
+        fill
+        className="object-contain invert"
+      />
+    </div>
+
+    <span className="text-xs text-center">
+      {category.name}
+    </span>
+  </motion.div>
+))}
+              </motion.div>
+            </div>
+          </div>
+
+
           {/* Payment Methods Row */}
-          <div className="flex flex-wrap justify-center gap-3 mt-4 pt-4 border-t border-gray-800/50">
+          <div className="flex flex-wrap justify-center gap-3 mt-6 pt-4 border-t border-gray-800/50">
             <span className="text-xs text-gray-500">Payment Methods:</span>
             <span className="text-xs text-orange-400">Razorpay</span>
             <span className="text-xs text-orange-400">UPI</span>

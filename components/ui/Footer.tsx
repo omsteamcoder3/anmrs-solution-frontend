@@ -4,9 +4,9 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { settingsAPI } from '@/lib/settings-api';
 import { PublicSettings } from '@/types/settings';
-import { Viga } from 'next/font/google';
+import { Roboto_Flex } from 'next/font/google';
 
-const markoOne = Viga({
+const markoOne = Roboto_Flex({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',

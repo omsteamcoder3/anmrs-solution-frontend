@@ -223,7 +223,7 @@ export default function TestimonialsSection() {
 
                     <div className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
                       {/* Testimonial text */}
-                      <p className="text-xs sm:text-sm md:text-base lg:text-lg font-bold italic leading-relaxed text-gray-700">
+                      <p className="text-xs sm:text-sm md:text-base lg:text-lg  italic leading-relaxed text-gray-700">
                         "{t.text}"
                       </p>
 
@@ -261,7 +261,7 @@ export default function TestimonialsSection() {
                               repeatType: "reverse",
                               ease: "easeInOut"
                             }}
-                            className="text-[10px] sm:text-xs md:text-sm font-bold text-orange-400"
+                            className="text-[10px] sm:text-xs md:text-sm  text-orange-400"
                           >
                             {t.loc}
                           </motion.p>

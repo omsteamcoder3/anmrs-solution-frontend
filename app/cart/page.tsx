@@ -39,7 +39,7 @@ export default function CartPage() {
             <svg className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Your Cart is Empty</h1>
+            <h1 className="text-xl sm:text-2xl  text-gray-900 mb-3 sm:mb-4">Your Cart is Empty</h1>
             <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">Add some products to your cart to see them here.</p>
             <Link 
               href="/products"
@@ -57,7 +57,7 @@ export default function CartPage() {
     <div className="min-h-screen bg-white py-8 sm:py-12 ">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shopping Cart</h1>
+          <h1 className="text-2xl sm:text-3xl  text-gray-900">Shopping Cart</h1>
           {isGuest && (
             <div className="bg-gradient-to-r from-[rgb(255,150,81)]/10 to-[rgb(223,89,0)]/10 border border-gradient-to-r border-[rgb(255,150,81)]/20 text-[rgb(255,150,81)] px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm">
               <p>

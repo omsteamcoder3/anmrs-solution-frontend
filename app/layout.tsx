@@ -86,7 +86,7 @@ export default async function RootLayout({
         {injectScripts(settings?.headerScripts, 'head')}
       </head>
 
-      <body className={inter.className}>
+      <body>
         <AuthProvider>
           <CartProvider>
             <div className="min-h-screen flex flex-col">

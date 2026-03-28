@@ -71,7 +71,7 @@ export default async function CategoriesPage() {
                       </svg>
                     </div>
                     <h3 
-                      className="text-xl font-bold text-gray-900 mb-2"
+                      className="text-xl  text-gray-900 mb-2"
                       style={{ fontFamily: 'Agbalumo, cursive' }}
                     >
                       {category.name}
@@ -87,7 +87,7 @@ export default async function CategoriesPage() {
               <div className="mt-16 max-w-4xl mx-auto">
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-200">
                   <h2 
-                    className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center"
+                    className="text-2xl md:text-3xl  text-gray-800 mb-6 text-center"
                     style={{ fontFamily: 'Agbalumo, cursive' }}
                   >
                     Why Shop by Category?

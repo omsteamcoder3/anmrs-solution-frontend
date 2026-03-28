@@ -103,7 +103,7 @@ export default function ReturnsPage() {
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{returnsPolicy.title}</h1>
+          <h1 className="text-4xl  text-gray-900 mb-4">{returnsPolicy.title}</h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
             {returnsPolicy.description}
           </p>

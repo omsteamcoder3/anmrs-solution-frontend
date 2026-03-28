@@ -147,9 +147,9 @@ export default function SignupForm() {
           {/* Header */}
           <div className="text-center">
             <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[rgb(223,89,0)] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <span className="text-white font-bold text-lg sm:text-xl">GW</span>
+              <span className="text-white  text-lg sm:text-xl">GW</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            <h2 className="text-2xl sm:text-3xl  text-gray-900">
               {isGuestUser ? 'Complete Your Account' : 'Create Your Account'}
             </h2>
             <p className="mt-2 text-gray-600 text-lg lg:text-base">

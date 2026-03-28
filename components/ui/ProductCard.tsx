@@ -134,7 +134,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       {/* Cart Badge */}
       {isInCart && (
-        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20 bg-orange-500 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex items-center justify-center text-[10px] sm:text-xs font-bold shadow-lg border border-white/20">
+        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20 bg-orange-500 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex items-center justify-center text-[10px] sm:text-xs  shadow-lg border border-white/20">
           ✓
         </div>
       )}
@@ -188,7 +188,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex items-center justify-between mb-1.5 sm:mb-2 md:mb-3">
           <div className="flex items-baseline gap-0.5 sm:gap-1 md:gap-1.5">
             {/* Current Price */}
-            <span className="font-['Agbalumo'] text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl font-bold text-orange-400">
+            <span className="font-['Agbalumo'] text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl  text-orange-400">
               ₹{formatPrice(offerInfo.discountedPrice)}
             </span>
             

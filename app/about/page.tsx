@@ -64,7 +64,7 @@ export default function AboutPage() {
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: false, amount: 0.3 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: [0.43, 0.13, 0.23, 0.96] }}
-                className="space-y-3 sm:space-y-4 md:space-y-6 text-sm sm:text-base md:text-lg font-bold leading-relaxed text-gray-700"
+                className="space-y-3 sm:space-y-4 md:space-y-6 text-sm sm:text-base md:text-lg  leading-relaxed text-gray-700"
               >
                 <motion.p
                   initial={{ opacity: 0 }}
@@ -154,7 +154,7 @@ export default function AboutPage() {
                     {item.icon}
                   </motion.div>
                   <h4 className="mb-2 sm:mb-3 md:mb-4 text-sm sm:text-base md:text-lg lg:text-2xl font-black uppercase leading-tight">{item.title}</h4>
-                  <p className={`text-xs sm:text-sm md:text-base font-bold ${
+                  <p className={`text-xs sm:text-sm md:text-base  ${
                     item.bg === "black" ? "text-gray-400" : 
                     item.bg === "orange" ? "opacity-80" : 
                     "text-gray-500"
@@ -230,7 +230,7 @@ export default function AboutPage() {
                 <motion.p 
                   initial={{ opacity: 0.6 }}
                   whileHover={{ opacity: 1 }}
-                  className="text-xs sm:text-sm md:text-base font-bold opacity-60 group-hover:opacity-100"
+                  className="text-xs sm:text-sm md:text-base  opacity-60 group-hover:opacity-100"
                 >
                   {item.text}
                 </motion.p>
@@ -304,7 +304,7 @@ export default function AboutPage() {
                   {cat.icon}
                 </div>
                 <h4 className="text-sm sm:text-base md:text-lg font-black uppercase">{cat.name}</h4>
-                <p className="text-xs text-gray-500 font-bold mt-1">{cat.items}</p>
+                <p className="text-xs text-gray-500  mt-1">{cat.items}</p>
               </motion.div>
             ))}
           </div>
@@ -363,7 +363,7 @@ export default function AboutPage() {
               <h4 className="text-2xl sm:text-3xl font-black flex items-center gap-2">
                 <ShieldCheck className="text-orange-400" /> Anmrs IT Solutions
               </h4>
-              <p className="text-sm sm:text-base font-bold text-gray-300 mt-1 max-w-xl">
+              <p className="text-sm sm:text-base  text-gray-300 mt-1 max-w-xl">
                 No.4A 3rd Street, Sanjay Gandhi Nagar, Chromepet Chennai - 6000044
               </p>
               <p className="text-xs sm:text-sm text-orange-300 font-mono mt-2">

@@ -95,7 +95,7 @@ export default function PrivacyPage() {
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl  text-gray-900 mb-4">
             {settings?.privacyPolicyTitle || 'Privacy Policy'}
           </h1>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
@@ -174,7 +174,7 @@ export default function PrivacyPage() {
               <section key={section.number} className="border-b border-gray-200 pb-8 last:border-0">
                 <div className="flex items-start mb-4">
                   <div className="w-10 h-10 bg-[rgb(223,115,14)] text-white rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <span className="font-bold">{section.number}</span>
+                    <span className="">{section.number}</span>
                   </div>
                   <div>
                     <h2 className="text-2xl font-semibold text-gray-900 mb-3">{section.title}</h2>

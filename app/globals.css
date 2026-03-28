@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+/* your custom styles */
+body {
+  font-family: 'Roboto Flex', sans-serif;
+}

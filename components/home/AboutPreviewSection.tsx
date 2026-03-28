@@ -41,7 +41,7 @@ export default function AboutPreviewSection() {
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: false, amount: 0.3 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.43, 0.13, 0.23, 0.96] }}
-              className="space-y-3 sm:space-y-4 text-sm sm:text-base md:text-lg font-bold leading-relaxed opacity-90"
+              className="space-y-3 sm:space-y-4 text-sm sm:text-base md:text-lg  leading-relaxed opacity-90"
             >
               <motion.p
                 initial={{ opacity: 0 }}
