@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShoppingBag, CreditCard, Truck, Tag, Package, Shield } from "lucide-react";
+import { 
+  ShoppingBag, CreditCard, Truck, Tag, Package, Shield, 
+  Smartphone, Clock, FileText, CircleCheck, Store, 
+  MapPin, Phone, Mail, Globe 
+} from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 
 export default function PhilosophySection() {
@@ -10,31 +14,42 @@ export default function PhilosophySection() {
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [cardWidth, setCardWidth] = useState(0);
-const categories = [
-  { name: "ID Cards", image: "/images/j1.webp" },
-  { name: "RFID Cards", image: "/images/j2.webp" },
-  { name: "PVC Cards", image: "/images/j3.webp" },
-  { name: "Access Cards", image: "/images/j4.webp" },
-  { name: "NFC Cards", image: "/images/j5.webp" },
-  { name: "Lanyards", image: "/images/j6.webp" },
-  { name: "Flex Printing", image: "/images/j7.webp" },
-  { name: "Hording Print", image: "/images/j8.webp" },
-  { name: "Access Control", image: "/images/j9.webp" },
-  { name: "CCTV Systems", image: "/images/j10.webp" },
-  { name: "Graphic Design", image: "/images/j11.webp" },
-];
+  
+  const categories = [
+    { name: "ID Cards", image: "/images/j1.webp" },
+    { name: "RFID Cards", image: "/images/j2.webp" },
+    { name: "PVC Cards", image: "/images/j3.webp" },
+    { name: "Access Cards", image: "/images/j4.webp" },
+    { name: "NFC Cards", image: "/images/j5.webp" },
+    { name: "Lanyards", image: "/images/j6.webp" },
+    { name: "Flex Printing", image: "/images/j7.webp" },
+    { name: "Hording Print", image: "/images/j8.webp" },
+    { name: "Access Control", image: "/images/j9.webp" },
+    { name: "CCTV Systems", image: "/images/j10.webp" },
+    { name: "Graphic Design", image: "/images/j11.webp" },
+  ];
 
   // Triple the array for infinite scroll
   const loopCategories = [...categories, ...categories, ...categories];
 
+  // Store features for the grid
+  const storeFeatures = [
+    { icon: CreditCard, title: "Secure Payments", subtitle: "Razorpay • UPI • COD", color: "orange" },
+    { icon: Truck, title: "Fast Shipping", subtitle: "PAN India Delivery", color: "orange" },
+    { icon: Tag, title: "Offers & Discounts", subtitle: "Coupons • Bulk Deals", color: "orange" },
+    { icon: Package, title: "Track Orders", subtitle: "Real-time Updates", color: "orange" },
+    { icon: Shield, title: "Secure Checkout", subtitle: "SSL Encrypted", color: "orange" },
+    { icon: Clock, title: "24/7 Support", subtitle: "Customer Service", color: "orange" },
+  ];
+
   useEffect(() => {
     const updateCardWidth = () => {
       if (containerRef.current) {
-        const container = containerRef.current.parentElement;
+        const container = containerRef.current.parentElement?.parentElement;
         if (container) {
           const containerWidth = container.clientWidth;
           const gapSize = 12;
-          // Show 3-5 items based on screen size
+          // Show 2-5 items based on screen size
           let itemsToShow = 5;
           if (window.innerWidth < 640) itemsToShow = 2;
           else if (window.innerWidth < 768) itemsToShow = 3;
@@ -54,11 +69,9 @@ const categories = [
 
   useEffect(() => {
     if (isHovered) return;
-
     const interval = setInterval(() => {
       setCurrentIndex(prev => prev + 1);
     }, 3000);
-
     return () => clearInterval(interval);
   }, [isHovered]);
 
@@ -70,9 +83,21 @@ const categories = [
   };
 
   return (
-    <section className="w-full py-12 sm:py-14 md:py-16 lg:py-24 bg-black" aria-label="Our E-Commerce Store">
-      <div className="container mx-auto px-4 sm:px-5 md:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
+    <section className="relative w-full py-12 sm:py-14 md:py-16 lg:py-24 bg-black overflow-hidden">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/h3.webp"
+          alt="Background"
+          fill
+          className="object-cover "
+          priority
+        />
+    
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-5 md:px-6 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
           
           {/* Left Side - Content */}
           <motion.div
@@ -90,8 +115,9 @@ const categories = [
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: 0.2 }}
-                  className="inline-block text-xs sm:text-sm font-semibold uppercase tracking-[0.3em] text-orange-400"
+                  className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-[0.3em] text-orange-400"
                 >
+                  <ShoppingBag className="w-4 h-4" />
                   ONLINE STORE
                 </motion.span>
                 
@@ -100,9 +126,10 @@ const categories = [
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: 0.3 }}
-                  className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight"
+                  className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight"
                 >
-                  Shop with <br />Confidence
+                  Shop with <br />
+                  <span className="text-orange-400">Confidence</span>
                 </motion.h2>
                 
                 <motion.div 
@@ -110,7 +137,7 @@ const categories = [
                   whileInView={{ width: 80 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: 0.4 }}
-                  className="h-1 bg-orange-400"
+                  className="h-1 bg-orange-400 rounded-full"
                 />
               </div>
 
@@ -120,15 +147,29 @@ const categories = [
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="bg-gradient-to-br from-orange-400/10 to-transparent p-5 md:p-6 rounded-lg border-l-4 border-orange-400"
+                className="bg-gradient-to-br from-orange-500/10 to-transparent backdrop-blur-sm p-5 md:p-6 rounded-xl border border-orange-500/20 shadow-lg"
               >
-                <p className="text-sm md:text-base text-gray-300 leading-relaxed">
-                  📍 No.4A 3rd Street, Sanjay Gandhi Nagar, Chromepet Chennai - 6000044
-                </p>
-                <div className="mt-3 flex flex-wrap gap-4 text-orange-400">
-                  <span className="text-sm md:text-base">📞 9884496177</span>
-                  <span className="text-sm md:text-base">✉️ id@anmrs.com</span>
-                  <span className="text-sm md:text-base">🌐 www.anmrs.com</span>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm md:text-base text-gray-200">
+                                      No.4A 3rd Street, Sanjay Gandhi Nagar, Chromepet Chennai - 6000044
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-4">
+                    <div className="flex items-center gap-2 text-orange-400">
+                      <Phone className="w-4 h-4" />
+                      <span className="text-sm text-gray-200">9884496177</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-orange-400">
+                      <Mail className="w-4 h-4" />
+                      <span className="text-sm text-gray-200">id@anmrs.com</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-orange-400">
+                      <Globe className="w-4 h-4" />
+                      <span className="text-sm text-gray-200">www.anmrs.com</span>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
 
@@ -158,44 +199,19 @@ const categories = [
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.6 }}
-                className="grid grid-cols-2 gap-4 pt-4"
+                className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-orange-400/20 flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-orange-400" />
+                {storeFeatures.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-orange-400/20 flex items-center justify-center flex-shrink-0">
+                      <feature.icon className="w-4 h-4 text-orange-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-white text-sm font-medium">{feature.title}</p>
+                      <p className="text-xs text-gray-400 truncate">{feature.subtitle}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-white ">Secure Payments</p>
-                    <p className="text-xs text-gray-400">Razorpay • UPI • COD</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-orange-400/20 flex items-center justify-center">
-                    <Truck className="w-5 h-5 text-orange-400" />
-                  </div>
-                  <div>
-                    <p className="text-white ">Fast Shipping</p>
-                    <p className="text-xs text-gray-400">PAN India Delivery</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-orange-400/20 flex items-center justify-center">
-                    <Tag className="w-5 h-5 text-orange-400" />
-                  </div>
-                  <div>
-                    <p className="text-white ">Offers & Discounts</p>
-                    <p className="text-xs text-gray-400">Coupons • Bulk Deals</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-orange-400/20 flex items-center justify-center">
-                    <Package className="w-5 h-5 text-orange-400" />
-                  </div>
-                  <div>
-                    <p className="text-white ">Track Orders</p>
-                    <p className="text-xs text-gray-400">Real-time Updates</p>
-                  </div>
-                </div>
+                ))}
               </motion.div>
             </div>
           </motion.div>
@@ -208,22 +224,23 @@ const categories = [
             transition={{ duration: 0.6 }}
             className="order-1 lg:order-2 relative"
           >
-            <div className="relative rounded-lg overflow-hidden group">
-              <div className="aspect-[4/3] relative">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
+          <div className="relative h-[550px] sm:h-[500px] md:h-[600px] lg:h-[900px] w-full">
                 <Image
                   src="/images/h2.webp"
                   alt="ANMRS IT Solutions - Online Store for Security Products"
                   fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
                   priority
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
-                
-              </div>
+           </div>
+              {/* Trust Badge */}
+      
             </div>
 
             {/* Decorative Elements */}
-            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-orange-400/20 rounded-full blur-3xl" />
+            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl" />
           </motion.div>
         </div>
 

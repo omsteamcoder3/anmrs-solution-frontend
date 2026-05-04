@@ -82,12 +82,12 @@ export default function Footer() {
           {/* Company Info */}
           <div className="text-center sm:text-left">
             <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-3 sm:space-y-0 sm:space-x-4 mb-4">
-              <div className="bg-white/5 p-3 rounded-xl border border-orange-500/20">
+              <div className=" scale-220">
                 <Image
-                  src="/images/logo.webp"
+                  src="/images/logo1.webp"
                   alt="products logo2"
-                  width={56}
-                  height={56}
+                  width={100}
+                  height={100}
                   priority
                   className="rounded-lg"
                 />
@@ -211,7 +211,7 @@ export default function Footer() {
         <div className="border-t border-orange-400/20 mt-10 sm:mt-12 md:mt-16 pt-6 sm:pt-8 text-center">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
             <p className={`${markoOne.className} text-white/60 text-sm sm:text-base`}>
-              © {new Date().getFullYear()} {settings.siteName}. All rights reserved.
+              © 2012 {settings.siteName}. All rights reserved.
             </p>
             <div className="flex gap-6 sm:gap-8">
               <Link href="/privacy" className={`${markoOne.className} text-white/60 hover:text-orange-400 transition-colors text-sm sm:text-base`}>

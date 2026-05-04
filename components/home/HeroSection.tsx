@@ -18,7 +18,15 @@ export default function HeroSection() {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [showWelcome, setShowWelcome] = useState(true);
   const sectionRef = useRef(null);
+
+  // Welcome slide content
+  const welcomeContent = {
+    title: "Welcome to ANMRS",
+    subtitle: "IT Solutions",
+    description: "Your trusted partner for innovative IT solutions, custom software development, and digital transformation services."
+  };
 
   // Fetch categories from backend
   useEffect(() => {
@@ -77,16 +85,29 @@ export default function HeroSection() {
     fetchCategories();
   }, []);
 
-  // Auto-rotate categories - only if categories exist
+  // Show welcome slide for 10 seconds, then start category rotation
   useEffect(() => {
     if (categories.length === 0) return;
+    
+    // Show welcome slide for 10 seconds
+    const welcomeTimer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 10000);
+
+    return () => clearTimeout(welcomeTimer);
+  }, [categories.length]);
+
+  // Auto-rotate categories - only after welcome slide ends
+  useEffect(() => {
+    if (categories.length === 0) return;
+    if (showWelcome) return; // Don't rotate during welcome slide
     
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % categories.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [categories.length]);
+  }, [categories.length, showWelcome]);
 
   const currentCategory = categories[currentIndex];
 
@@ -98,7 +119,7 @@ export default function HeroSection() {
           src="/images/hero.webp"
           alt="Hero Background"
           fill
-          className="object-cover"
+          className="object-cover opacity-80"
           priority
           quality={100}
         />
@@ -120,7 +141,97 @@ export default function HeroSection() {
         <div className="grid h-full grid-cols-1 lg:grid-cols-2 items-center">
           {/* Left Content - Vertically centered automatically by grid items-center */}
           <div className="py-12 md:py-16 lg:py-20">
-            {!loading && categories.length > 0 && currentCategory ? (
+            {/* Welcome Slide */}
+            {!loading && showWelcome && (
+              <div className="space-y-4 sm:space-y-5 md:space-y-7 lg:space-y-9">
+                <motion.h1 
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[8rem] font-black uppercase leading-[1.1] tracking-tighter text-white"
+                >
+                  Welcome to <br />
+                  <motion.span 
+                    initial={{ x: -100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 0.15 }}
+                    className="text-orange-400 inline-block"
+                  >
+                    ANMRS
+                  </motion.span>
+                </motion.h1>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="relative"
+                >
+<p className="text-left max-w-[70%] sm:max-w-xl text-[8px] xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed text-gray-200">
+  {welcomeContent.description}
+</p>
+                  
+                  {/* Progress bar for welcome slide */}
+                  <div className="flex gap-2 mt-6 md:mt-8">
+                    <div className="h-1.5 md:h-2 rounded-full bg-orange-400 w-full max-w-[200px] relative overflow-hidden">
+                      <motion.div 
+                        className="absolute inset-0 bg-white/50"
+                        initial={{ scaleX: 1 }}
+                        animate={{ scaleX: 0 }}
+                        transition={{ duration: 10, ease: "linear" }}
+                        style={{ originX: 0 }}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div 
+                  initial={{ y: 50, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: false, amount: 0.3 }}
+                  transition={{ duration: 0.8, delay: 0.4, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  className="flex flex-nowrap sm:flex-wrap gap-1.5 sm:gap-4 pt-2 sm:pt-5 mb-4"
+                >
+                  <Link
+                    href="/contact"
+                    className="group flex items-center justify-center gap-1.5 bg-white
+                    px-2 py-1
+                    sm:px-6 sm:py-3
+                    md:px-7 md:py-3.5
+                    lg:px-8 lg:py-4
+                    text-[10px] sm:text-base md:text-lg
+                    font-black uppercase tracking-wider text-black
+                    transition-all hover:bg-orange-400 hover:text-white whitespace-nowrap"
+                  >
+                    GET QUOTE
+
+                    <motion.div
+                      animate={{ x: [0, 6, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <ArrowRight className="h-3 w-3 sm:h-5 sm:w-5 md:h-6 md:w-6" />
+                    </motion.div>
+                  </Link>
+
+                  <Link
+                    href="/products"
+                    className="flex items-center justify-center gap-1.5 border border-white/30
+                    px-2 py-1
+                    sm:px-6 sm:py-3
+                    md:px-7 md:py-3.5
+                    lg:px-8 lg:py-4
+                    text-[10px] sm:text-base md:text-lg
+                    font-black uppercase tracking-wider text-white
+                    backdrop-blur-sm transition-all hover:bg-white/10 whitespace-nowrap"
+                  >
+                    VIEW PRODUCTS
+                  </Link>
+                </motion.div>
+              </div>
+            )}
+
+            {/* Category Slides - Only show after welcome slide ends */}
+            {!loading && !showWelcome && categories.length > 0 && currentCategory && (
               <div className="space-y-4 sm:space-y-5 md:space-y-7 lg:space-y-9">
                 <motion.h1 
                   key={`title-${currentCategory.slug}`}
@@ -147,7 +258,7 @@ export default function HeroSection() {
                   transition={{ duration: 0.5, delay: 0.2 }}
                   className="relative"
                 >
-                  <p className="max-w-xl text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed text-gray-200">
+<p className="text-left max-w-[70%] sm:max-w-xl text-[8px] xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed text-gray-200">
                     {currentCategory.description}
                   </p>
                   
@@ -170,50 +281,50 @@ export default function HeroSection() {
                   )}
                 </motion.div>
 
-         <motion.div 
-  initial={{ y: 50, opacity: 0 }}
-  whileInView={{ y: 0, opacity: 1 }}
-  viewport={{ once: false, amount: 0.3 }}
-  transition={{ duration: 0.8, delay: 0.4, ease: [0.43, 0.13, 0.23, 0.96] }}
-  className="flex flex-nowrap sm:flex-wrap gap-2 sm:gap-4 pt-3 sm:pt-5"
->
-  <Link
-    href="/contact"
-    className="group flex items-center justify-center gap-2 bg-white
-    px-3 py-1.5
-    sm:px-6 sm:py-3
-    md:px-7 md:py-3.5
-    lg:px-8 lg:py-4
-    text-xs sm:text-base md:text-lg
-    font-black uppercase tracking-wider text-black
-    transition-all hover:bg-orange-400 hover:text-white whitespace-nowrap"
-  >
-    GET QUOTE
+                <motion.div 
+                  initial={{ y: 50, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: false, amount: 0.3 }}
+                  transition={{ duration: 0.8, delay: 0.4, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  className="flex flex-nowrap sm:flex-wrap gap-1.5 sm:gap-4 pt-2 sm:pt-5 mb-4"
+                >
+                  <Link
+                    href="/contact"
+                    className="group flex items-center justify-center gap-1.5 bg-white
+                    px-2 py-1
+                    sm:px-6 sm:py-3
+                    md:px-7 md:py-3.5
+                    lg:px-8 lg:py-4
+                    text-[10px] sm:text-base md:text-lg
+                    font-black uppercase tracking-wider text-black
+                    transition-all hover:bg-orange-400 hover:text-white whitespace-nowrap"
+                  >
+                    GET QUOTE
 
-    <motion.div
-      animate={{ x: [0, 6, 0] }}
-      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-    >
-      <ArrowRight className="h-3 w-3 sm:h-5 sm:w-5 md:h-6 md:w-6" />
-    </motion.div>
-  </Link>
+                    <motion.div
+                      animate={{ x: [0, 6, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <ArrowRight className="h-3 w-3 sm:h-5 sm:w-5 md:h-6 md:w-6" />
+                    </motion.div>
+                  </Link>
 
-  <Link
-    href="/products"
-    className="flex items-center justify-center gap-2 border border-white/30
-    px-3 py-1.5
-    sm:px-6 sm:py-3
-    md:px-7 md:py-3.5
-    lg:px-8 lg:py-4
-    text-xs sm:text-base md:text-lg
-    font-black uppercase tracking-wider text-white
-    backdrop-blur-sm transition-all hover:bg-white/10 whitespace-nowrap"
-  >
-    VIEW PRODUCTS
-  </Link>
-</motion.div>
- </div>
-            ) : null}
+                  <Link
+                    href="/products"
+                    className="flex items-center justify-center gap-1.5 border border-white/30
+                    px-2 py-1
+                    sm:px-6 sm:py-3
+                    md:px-7 md:py-3.5
+                    lg:px-8 lg:py-4
+                    text-[10px] sm:text-base md:text-lg
+                    font-black uppercase tracking-wider text-white
+                    backdrop-blur-sm transition-all hover:bg-white/10 whitespace-nowrap"
+                  >
+                    VIEW PRODUCTS
+                  </Link>
+                </motion.div>
+              </div>
+            )}
           </div>
 
           {/* Right Content - Empty but maintains grid structure */}
@@ -221,23 +332,23 @@ export default function HeroSection() {
         </div>
       </div>
 
-{/* Animated decorative elements with glass morphism */}
-<motion.div
-  initial={{ scale: 0, opacity: 0 }}
-  animate={{ scale: 1, opacity: 0.25 }}
-  transition={{ duration: 1, delay: 0.6 }}
-  className="absolute bottom-40 right-20 h-64 w-64 md:h-80 md:w-80 lg:h-96 lg:w-96 rounded-full bg-orange-500/30 backdrop-blur-xl -z-10"
-/>
+      {/* Animated decorative elements with glass morphism */}
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 0.25 }}
+        transition={{ duration: 1, delay: 0.6 }}
+        className="absolute bottom-40 right-20 h-64 w-64 md:h-80 md:w-80 lg:h-96 lg:w-96 rounded-full bg-orange-500/30 backdrop-blur-xl -z-10"
+      />
 
-<motion.div
-  initial={{ scale: 0, opacity: 0 }}
-  animate={{ scale: 1, opacity: 0.2 }}
-  transition={{ duration: 1.2, delay: 0.8 }}
-  className="absolute left-20 top-40 h-96 w-96 md:h-[28rem] md:w-[28rem] lg:h-[32rem] lg:w-[32rem] rounded-full bg-orange-600/25 backdrop-blur-xl -z-10"
-/>
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 0.2 }}
+        transition={{ duration: 1.2, delay: 0.8 }}
+        className="absolute left-20 top-40 h-96 w-96 md:h-[28rem] md:w-[28rem] lg:h-[32rem] lg:w-[32rem] rounded-full bg-orange-600/25 backdrop-blur-xl -z-10"
+      />
 
-{/* Bottom Ticker with Categories - Only show if categories exist */}
-{categories.length > 0 && (
+  {/* Bottom Ticker with Categories - Only show if categories exist */}
+{categories.length > 0 && !showWelcome && (
   <div className="absolute w-full bottom-0 left-0 right-0 overflow-hidden border-t border-orange-400/30 bg-orange-500/20 backdrop-blur-md py-3 sm:py-4 md:py-5 z-30">
     <motion.div
       initial={{ x: 0 }}
@@ -259,7 +370,14 @@ export default function HeroSection() {
           <span className="flex items-center gap-2 text-base sm:text-2xl md:text-3xl lg:text-4xl font-extrabold uppercase tracking-wider text-white drop-shadow-lg">
             {category.name}
           </span>
-          <Star className="ml-4 h-5 w-5 sm:h-7 sm:w-7 md:h-8 md:w-8 lg:h-9 lg:w-9 fill-orange-400 text-orange-400 drop-shadow-lg group-hover:fill-orange-300 group-hover:text-orange-300 transition-colors" />
+          <div className="relative w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 ml-4">
+            <Image
+              src="/images/user.webp"
+              alt="User"
+              fill
+              className="object-contain "
+            />
+          </div>
         </Link>
       ))}
     </motion.div>

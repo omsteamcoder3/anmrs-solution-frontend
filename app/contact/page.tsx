@@ -170,7 +170,7 @@ export default function ContactPage() {
               <motion.div 
                 whileHover={{ scale: 1.02}}
                 transition={{ duration: 0.5 }}
-                className="h-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-hidden rounded-2xl sm:rounded-3xl md:rounded-[3rem] border-4 sm:border-8 border-black shadow-2xl grayscale hover:grayscale-0"
+                className="h-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-hidden   shadow-2xl grayscale hover:grayscale-0"
               >
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.234567891234!2d80.1394!3d12.9455!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a525f123456789%3A0x123456789abcdef!2sSanjay%20Gandhi%20Nagar%2C%20Chromepet%2C%20Chennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1625484839282!5m2!1sen!2sin"

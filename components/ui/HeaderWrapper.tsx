@@ -23,20 +23,25 @@ export default async function HeaderWrapper() {
   };
   
   try {
-    // Fetch all active categories
+    // Fetch all active categories (no filtering)
     const allCategories = await fetchActiveCategories();
     
-    // Filter categories that have products on the server side
-    const categoriesWithProducts: Category[] = [];
+    // ❌ REMOVE THIS PRODUCT FILTERING LOGIC
+    // // Filter categories that have products on the server side
+    // const categoriesWithProducts: Category[] = [];
+    // 
+    // for (const category of allCategories) {
+    //   const response = await getAllProducts({ category: category._id });
+    //   if (response.data && response.data.length > 0) {
+    //     categoriesWithProducts.push(category);
+    //   }
+    // }
+    // 
+    // categories = categoriesWithProducts;
     
-    for (const category of allCategories) {
-      const response = await getAllProducts({ category: category._id });
-      if (response.data && response.data.length > 0) {
-        categoriesWithProducts.push(category);
-      }
-    }
+    // ✅ Simply assign all categories
+    categories = allCategories;
     
-    categories = categoriesWithProducts;
   } catch (error) {
     console.error('Error loading categories:', error);
   }

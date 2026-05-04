@@ -237,118 +237,108 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
   return (
     <>
       {/* Main Header - Black background with orange accents */}
-      <div className="xl:sticky xl:top-0 z-40 w-full overflow-hidden">
+      <div className="xl:sticky xl:top-0 z-40 w-full ">
         <header className="bg-black shadow-lg shadow-black/50 border-b border-white/10  w-full">
-          <div className="container mx-auto px-3 sm:px-4 lg:px-6 max-w-full">
-            <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24 w-full">
+          <div className="container mx-auto px-2 sm:px-3 lg:px-4 max-w-full">
+            <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20 w-full">
               {/* Logo - Left side */}
               <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer flex-shrink-0">
                 <div className="relative flex-shrink-0">
                   <Image
-                    src="/images/logo.webp"
+                    src="/images/logo.png"
                     alt="logo"
                     width={40}
                     height={40}
                     priority
-                    className="w-30 h-30 sm:w-40 sm:h-40  object-contain"
+                    className="w-30 h-30 sm:w-50 sm:h-50   object-contain"
                   />
                 </div>
                
               </Link>
 
-              {/* Desktop Navigation - Hidden on mobile/tablet */}
-              <nav className="hidden xl:flex items-center space-x-1 2xl:space-x-2 flex-shrink-0">
-                <Link 
-                  href="/" 
-                  className={`text-white hover:text-orange-400 transition-all duration-300 font-black ${markoOne.className} px-3 py-2 rounded-lg hover:bg-white/10 border border-transparent hover:border-orange-400/50 text-sm 2xl:text-base uppercase tracking-wider cursor-pointer whitespace-nowrap`}
-                >
-                  Home
-                </Link>
-                
-                {/* First 2 Categories */}
-                {firstTwoCategories.map((category) => (
-                  <Link 
-                    key={category._id}
-                    href={`/products?category=${category.slug}`}
-                    className={`text-white hover:text-orange-400 transition-all duration-300 font-black ${markoOne.className} px-3 py-2 rounded-lg hover:bg-white/10 border border-transparent hover:border-orange-400/50 text-sm 2xl:text-base uppercase tracking-wider cursor-pointer whitespace-nowrap`}
-                  >
-                    {category.name}
-                  </Link>
-                ))}
-                
-                {/* Shop Dropdown */}
-                {remainingCategories.length > 0 && (
-                  <div ref={shopDropdownRef} className="relative">
-                    <button
-                      onClick={() => setShowShopDropdown(!showShopDropdown)}
-                      className={`flex items-center space-x-1 text-white hover:text-orange-400 transition-all duration-300 font-black ${markoOne.className} px-3 py-2 rounded-lg hover:bg-white/10 border border-transparent hover:border-orange-400/50 text-sm 2xl:text-base uppercase tracking-wider cursor-pointer whitespace-nowrap`}
-                    >
-                      <span>Shop</span>
-                      <svg
-                        className={`w-3 h-3 transition-transform duration-300 ${showShopDropdown ? 'rotate-180' : ''}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
+           {/* Desktop Navigation - Hidden on mobile/tablet */}
+<nav className="hidden xl:flex items-center space-x-1 flex-shrink-0">
+  <Link 
+    href="/" 
+    className={`text-white hover:text-orange-400 transition-all duration-300 font-black ${markoOne.className} px-3 py-2 rounded-lg hover:bg-white/10 border border-transparent hover:border-orange-400/50 text-sm 2xl:text-base uppercase tracking-wider cursor-pointer whitespace-nowrap`}
+  >
+    Home
+  </Link>
+  
+  {/* Single Categories Dropdown Button */}
+  <div ref={shopDropdownRef} className="relative">
+    <button
+      onClick={() => setShowShopDropdown(!showShopDropdown)}
+      className={`flex items-center space-x-1 text-white hover:text-orange-400 transition-all duration-300 font-black ${markoOne.className} px-3 py-2 rounded-lg hover:bg-white/10 border border-transparent hover:border-orange-400/50 text-sm 2xl:text-base uppercase tracking-wider cursor-pointer whitespace-nowrap`}
+    >
+      <span>Categories</span>
+      <svg
+        className={`w-3 h-3 transition-transform duration-300 ${showShopDropdown ? 'rotate-180' : ''}`}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
 
-                    {/* Shop Dropdown Menu */}
-                    {showShopDropdown && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 mt-2 w-48 bg-black rounded-lg shadow-2xl py-2 z-50 border border-white/10"
-                      >
-                        <div className="px-3 py-2 border-b border-white/10">
-                          <p className="text-orange-400 font-black text-xs uppercase tracking-wider">Categories</p>
-                        </div>
-                        
-                        {/* Remaining Categories */}
-                        {remainingCategories.map((category) => (
-                          <Link
-                            key={category._id}
-                            href={`/products?category=${category.slug}`}
-                            className="flex items-center space-x-2 px-3 py-2 text-sm text-white hover:text-orange-400 hover:bg-white/10 transition-all duration-300 cursor-pointer border-l-2 border-transparent hover:border-orange-400"
-                            onClick={() => setShowShopDropdown(false)}
-                          >
-                            <Package className="w-3 h-3 text-orange-400/70 flex-shrink-0" />
-                            <span className="font-medium truncate">{category.name}</span>
-                          </Link>
-                        ))}
-                        
-                        {/* View All Products Link */}
-                        <Link
-                          href="/products"
-                          className="flex items-center space-x-2 px-3 py-2 text-sm text-orange-400 hover:text-white hover:bg-orange-400 transition-all duration-300 cursor-pointer border-t border-white/10 mt-1 group"
-                          onClick={() => setShowShopDropdown(false)}
-                        >
-                          <Tag className="w-3 h-3 flex-shrink-0" />
-                          <span className="font-black uppercase tracking-wider truncate">All Products</span>
-                          <ArrowRight className="w-3 h-3 ml-auto flex-shrink-0 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                      </motion.div>
-                    )}
-                  </div>
-                )}
-                
-                <Link 
-                  href="/about" 
-                  className={`text-white hover:text-orange-400 transition-all duration-300 font-black ${markoOne.className} px-3 py-2 rounded-lg hover:bg-white/10 border border-transparent hover:border-orange-400/50 text-sm 2xl:text-base uppercase tracking-wider cursor-pointer whitespace-nowrap`}
-                >
-                  About
-                </Link>
-                
-                <Link 
-                  href="/contact" 
-                  className={`text-white hover:text-orange-400 transition-all duration-300 font-black ${markoOne.className} px-3 py-2 rounded-lg hover:bg-white/10 border border-transparent hover:border-orange-400/50 text-sm 2xl:text-base uppercase tracking-wider cursor-pointer whitespace-nowrap`}
-                >
-                  Contact
-                </Link>
-              </nav>
+    {/* Categories Dropdown Menu */}
+    {showShopDropdown && (
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.2 }}
+        className="absolute top-full left-0 mt-2 w-56 bg-black rounded-lg shadow-2xl py-2 z-50 border border-white/10"
+      >
+        <div className="px-3 py-2 border-b border-white/10">
+          <p className="text-orange-400 font-black text-xs uppercase tracking-wider">All Categories</p>
+        </div>
+        
+        {/* All Categories */}
+        {categoriesWithProducts.map((category) => (
+          <Link
+            key={category._id}
+            href={`/products?category=${category.slug}`}
+            className="flex items-center space-x-2 px-3 py-2 text-sm text-white hover:text-orange-400 hover:bg-white/10 transition-all duration-300 cursor-pointer border-l-2 border-transparent hover:border-orange-400"
+            onClick={() => setShowShopDropdown(false)}
+          >
+            <Package className="w-3 h-3 text-orange-400/70 flex-shrink-0" />
+            <span className="font-medium truncate">{category.name}</span>
+          </Link>
+        ))}
+        
+        {/* Divider */}
+        <div className="border-t border-white/10 my-1"></div>
+        
+        {/* View All Products Link */}
+        <Link
+          href="/products"
+          className="flex items-center space-x-2 px-3 py-2 text-sm text-orange-400 hover:text-white hover:bg-orange-400 transition-all duration-300 cursor-pointer group"
+          onClick={() => setShowShopDropdown(false)}
+        >
+          <Tag className="w-3 h-3 flex-shrink-0" />
+          <span className="font-black uppercase tracking-wider truncate">All Products</span>
+          <ArrowRight className="w-3 h-3 ml-auto flex-shrink-0 group-hover:translate-x-1 transition-transform" />
+        </Link>
+      </motion.div>
+    )}
+  </div>
+  
+  <Link 
+    href="/about" 
+    className={`text-white hover:text-orange-400 transition-all duration-300 font-black ${markoOne.className} px-3 py-2 rounded-lg hover:bg-white/10 border border-transparent hover:border-orange-400/50 text-sm 2xl:text-base uppercase tracking-wider cursor-pointer whitespace-nowrap`}
+  >
+    About us
+  </Link>
+  
+  <Link 
+    href="/contact" 
+    className={`text-white hover:text-orange-400 transition-all duration-300 font-black ${markoOne.className} px-3 py-2 rounded-lg hover:bg-white/10 border border-transparent hover:border-orange-400/50 text-sm 2xl:text-base uppercase tracking-wider cursor-pointer whitespace-nowrap`}
+  >
+    Contact us
+  </Link>
+</nav>
 
               {/* Actions and Mobile Menu Button - Right side */}
               <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 flex-shrink-0">
@@ -773,7 +763,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <Info className="w-4 h-4 text-orange-400/70 flex-shrink-0" />
-                          <span>About</span>
+                          <span>About us</span>
                         </Link>
                         
                         <Link 
@@ -782,7 +772,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <Mail className="w-4 h-4 text-orange-400/70 flex-shrink-0" />
-                          <span>Contact</span>
+                          <span>Contact us</span>
                         </Link>
                       </div>
                     </nav>
