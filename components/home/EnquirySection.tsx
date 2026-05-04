@@ -4,20 +4,38 @@ import type React from "react"
 import { useState, useRef } from "react"
 import { Send, CreditCard, Phone } from "lucide-react"
 import { motion } from "framer-motion"
+import { useEffect } from "react"
+import { settingsAPI } from '@/lib/settings-api';
 
 export default function EnquirySection() {
   const sectionRef = useRef(null)
+  const [settings, setSettings] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     product: "",
     message: "",
   })
+useEffect(() => {
+  const fetchSettings = async () => {
+    try {
+      const response = await settingsAPI.getPublicSettings();
+      if (response.success) {
+        setSettings(response.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
+  fetchSettings();
+}, []);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const text = `E-Commerce Order Enquiry - Anmrs IT Solutions:%0A*Name:* ${formData.name}%0A*Phone:* ${formData.phone}%0A*Product Interested:* ${formData.product}%0A*Requirements:* ${formData.message}`
-    window.open(`https://wa.me/919884496177?text=${text}`, "_blank")
+    const phone = settings?.contactNumber?.replace(/\D/g, "") || "919884496177";
+
+window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
   }
 
   return (
@@ -116,7 +134,7 @@ export default function EnquirySection() {
                     }}
                     className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black"
                   >
-                    98844 96177
+                {settings?.contactNumber }
                   </motion.p>
                 </div>
               </motion.div>
@@ -180,7 +198,7 @@ export default function EnquirySection() {
                       transition={{ duration: 0.2 }}
                       type="tel"
                       required
-                      placeholder="+91 98844 96177"
+                      placeholder="+91 8071639282"
                       className="w-full border-b-2 border-white/20 bg-transparent py-2 sm:py-3 md:py-4 text-base sm:text-lg md:text-xl  transition-colors focus:border-orange-400 focus:outline-none placeholder:text-gray-600"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
