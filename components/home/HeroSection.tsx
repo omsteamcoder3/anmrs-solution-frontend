@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Star } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 // Define Category type matching your database structure
@@ -13,13 +13,29 @@ interface Category {
   description: string;
 }
 
+// Define Client type matching your database structure
+interface Client {
+  _id: string;
+  name: string;
+  slug: string;
+  imageUrl: string;
+  imageSize: number;
+}
+
 export default function HeroSection() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [error, setError] = useState<string | null>(null);
   const [showWelcome, setShowWelcome] = useState(true);
   const sectionRef = useRef(null);
+  
+  // For infinite seamless ticker - EXACT same logic as HowItWorksSection
+  const [position, setPosition] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const parentRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number>(0);
+  const lastTimeRef = useRef<number>(0);
 
   // Welcome slide content
   const welcomeContent = {
@@ -28,68 +44,97 @@ export default function HeroSection() {
     description: "Your trusted partner for innovative IT solutions, custom software development, and digital transformation services."
   };
 
-  // Fetch categories from backend
+  // Get client item width for consistent scrolling
+  const getClientItemWidth = useCallback(() => {
+    if (typeof window === 'undefined') return 200;
+    const width = window.innerWidth;
+    // Responsive widths for client items
+    if (width < 480) return 140;
+    if (width < 640) return 160;
+    if (width < 768) return 180;
+    if (width < 1024) return 200;
+    return 220;
+  }, []);
+
+  const [itemWidth, setItemWidth] = useState(200);
+  const gap = 0; // No gap, smooth continuous flow
+  const speed = 0.08; // Smooth elegant scroll speed
+
+  // Fetch categories and clients from backend
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        // Use environment variable with fallback
-        const API_URL = process.env.NEXT_PUBLIC_BASE_URL 
-        const url = `${API_URL}/api/categories`;
+        const API_URL = process.env.NEXT_PUBLIC_BASE_URL;
         
-        console.log('Fetching from:', url); // Debug log
-        
-        const response = await fetch(url, {
+        // Fetch categories
+        const categoriesUrl = `${API_URL}/api/categories`;
+        const categoriesResponse = await fetch(categoriesUrl, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         });
         
-        // Check if response is OK
-        if (!response.ok) {
-          console.error('Response not OK:', response.status, response.statusText);
-          setCategories([]);
-          return;
+        if (categoriesResponse.ok) {
+          const contentType = categoriesResponse.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const result = await categoriesResponse.json();
+            if (result.success && Array.isArray(result.data)) {
+              const formattedCategories = result.data.map((cat: any) => ({
+                name: cat.name,
+                slug: cat.slug,
+                description: cat.description
+              }));
+              setCategories(formattedCategories);
+            }
+          }
         }
-
-        // Check content type to ensure it's JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          console.error('Invalid content type:', contentType);
-          setCategories([]);
-          return;
-        }
-
-        const result = await response.json();
-
-        if (result.success && Array.isArray(result.data)) {
-          const formattedCategories = result.data.map((cat: any) => ({
-            name: cat.name,
-            slug: cat.slug,
-            description: cat.description
-          }));
-
-          setCategories(formattedCategories);
+        
+        // Fetch clients for ticker
+        const clientsUrl = `${API_URL}/api/clients`;
+        const clientsResponse = await fetch(clientsUrl, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        
+        if (clientsResponse.ok) {
+          const contentType = clientsResponse.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const result = await clientsResponse.json();
+            if (result.success && Array.isArray(result.clients)) {
+              setClients(result.clients);
+            } else if (Array.isArray(result)) {
+              setClients(result);
+            }
+          }
         } else {
-          console.error('Invalid API response:', result);
-          setCategories([]);
+          setClients([]);
         }
+        
       } catch (error) {
         console.error("Fetch error:", error);
         setCategories([]);
+        setClients([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCategories();
+    fetchData();
   }, []);
+
+  // Update item width on resize
+  useEffect(() => {
+    const updateItemWidth = () => {
+      setItemWidth(getClientItemWidth());
+    };
+    updateItemWidth();
+    window.addEventListener('resize', updateItemWidth);
+    return () => window.removeEventListener('resize', updateItemWidth);
+  }, [getClientItemWidth]);
 
   // Show welcome slide for 10 seconds, then start category rotation
   useEffect(() => {
     if (categories.length === 0) return;
     
-    // Show welcome slide for 10 seconds
     const welcomeTimer = setTimeout(() => {
       setShowWelcome(false);
     }, 10000);
@@ -100,7 +145,7 @@ export default function HeroSection() {
   // Auto-rotate categories - only after welcome slide ends
   useEffect(() => {
     if (categories.length === 0) return;
-    if (showWelcome) return; // Don't rotate during welcome slide
+    if (showWelcome) return;
     
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % categories.length);
@@ -110,6 +155,38 @@ export default function HeroSection() {
   }, [categories.length, showWelcome]);
 
   const currentCategory = categories[currentIndex];
+
+  // EXACT SAME ANIMATION LOGIC AS HowItWorksSection
+  const animate = useCallback((time: number) => {
+    if (!lastTimeRef.current) lastTimeRef.current = time;
+    const delta = time - lastTimeRef.current;
+    lastTimeRef.current = time;
+
+    setPosition((prev) => {
+      const totalContentWidth = clients.length * (itemWidth + gap);
+      let newPos = prev + speed * delta;
+      if (newPos >= totalContentWidth) newPos = 0;
+      return newPos;
+    });
+
+    animationRef.current = requestAnimationFrame(animate);
+  }, [clients.length, itemWidth, gap, speed]);
+
+  // Start animation when clients are loaded and welcome slide is done
+  useEffect(() => {
+    if (clients.length > 0 && !showWelcome) {
+      animationRef.current = requestAnimationFrame(animate);
+      return () => {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
+        lastTimeRef.current = 0;
+      };
+    }
+  }, [clients.length, showWelcome, animate]);
+
+  // Duplicate clients multiple times for seamless infinite scrolling (like HowItWorksSection)
+  const infiniteClients = [...clients, ...clients, ...clients, ...clients];
 
   return (
     <section ref={sectionRef} className="relative min-h-[300px] lg:min-h-[900px] xl:min-h-[900px] w-full overflow-hidden bg-black">
@@ -167,9 +244,9 @@ export default function HeroSection() {
                   transition={{ duration: 0.5, delay: 0.2 }}
                   className="relative"
                 >
-<p className="text-left max-w-[70%] sm:max-w-xl text-[8px] xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed text-gray-200">
-  {welcomeContent.description}
-</p>
+                  <p className="text-left max-w-[70%] sm:max-w-xl text-[8px] xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed text-gray-200">
+                    {welcomeContent.description}
+                  </p>
                   
                   {/* Progress bar for welcome slide */}
                   <div className="flex gap-2 mt-6 md:mt-8">
@@ -258,7 +335,7 @@ export default function HeroSection() {
                   transition={{ duration: 0.5, delay: 0.2 }}
                   className="relative"
                 >
-<p className="text-left max-w-[70%] sm:max-w-xl text-[8px] xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed text-gray-200">
+                  <p className="text-left max-w-[70%] sm:max-w-xl text-[8px] xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed text-gray-200">
                     {currentCategory.description}
                   </p>
                   
@@ -347,42 +424,88 @@ export default function HeroSection() {
         className="absolute left-20 top-40 h-96 w-96 md:h-[28rem] md:w-[28rem] lg:h-[32rem] lg:w-[32rem] rounded-full bg-orange-600/25 backdrop-blur-xl -z-10"
       />
 
-  {/* Bottom Ticker with Categories - Only show if categories exist */}
-{categories.length > 0 && !showWelcome && (
-  <div className="absolute w-full bottom-0 left-0 right-0 overflow-hidden border-t border-orange-400/30 bg-orange-500/20 backdrop-blur-md py-3 sm:py-4 md:py-5 z-30">
-    <motion.div
-      initial={{ x: 0 }}
-      animate={{ x: "-50%" }}
-      transition={{
-        duration: 30,
-        repeat: Infinity,
-        ease: "linear",
-        repeatType: "loop",
-      }}
-      className="flex whitespace-nowrap"
+{/* Dynamic Bottom Ticker - Mobile Responsive Updated */}
+{clients.length > 0 && !showWelcome && (
+  <div className="absolute w-full bottom-0 left-0 right-0 overflow-hidden border-t border-orange-400/20 bg-gradient-to-r from-orange-500/20 via-orange-500/10 to-orange-500/20 backdrop-blur-md py-1.5 sm:py-2 md:py-3 z-30">
+    
+    {/* Main Viewport Container */}
+    <div
+      ref={parentRef}
+      className="relative w-full flex items-center overflow-hidden"
     >
-      {[...categories, ...categories, ...categories].map((category, index) => (
-        <Link 
-          key={`${category.slug}-${index}`} 
-          href={`/categories/${category.slug}`}
-          className="flex items-center mx-4 sm:mx-6 md:mx-8 hover:opacity-80 transition-opacity group"
-        >
-          <span className="flex items-center gap-2 text-base sm:text-2xl md:text-3xl lg:text-4xl font-extrabold uppercase tracking-wider text-white drop-shadow-lg">
-            {category.name}
-          </span>
-          <div className="relative w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 ml-4">
-            <Image
-              src="/images/user.webp"
-              alt="User"
-              fill
-              className="object-contain "
-            />
-          </div>
-        </Link>
-      ))}
-    </motion.div>
+      
+      {/* Ticker Track */}
+      <div
+        ref={containerRef}
+        className="flex will-change-transform items-center"
+        style={{
+          transform: `translate3d(-${position}px, 0, 0)`,
+        }}
+      >
+        {infiniteClients.map((client, index) => (
+          <Link
+            key={`${client.slug}-${index}`}
+            href={`/clients/${client.slug}`}
+            className="flex-shrink-0"
+            style={{
+              width: `${itemWidth}px`,
+              marginLeft: index === 0 ? "0" : `${gap}px`,
+            }}
+          >
+            <div className="flex items-center justify-center px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 transition-all duration-300 hover:scale-105">
+              
+              {/* Client Image */}
+              <div className="relative w-7 h-7 min-[250px]:w-8 min-[250px]:h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full overflow-hidden bg-gradient-to-br from-orange-400/20 to-orange-600/20 border border-orange-400/30 shadow-md flex-shrink-0">
+                
+                {client.imageUrl ? (
+                  <Image
+                    src={
+                      client.imageUrl.startsWith("http")
+                        ? client.imageUrl
+                        : `${process.env.NEXT_PUBLIC_BASE_URL}${client.imageUrl}`
+                    }
+                    alt={client.name}
+                    fill
+                    className="object-cover transition-transform duration-300 hover:scale-110"
+                    sizes="(max-width: 250px) 28px,
+                           (max-width: 640px) 32px,
+                           (max-width: 768px) 40px,
+                           48px"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.style.display = "none"
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white text-[10px] min-[250px]:text-xs sm:text-sm md:text-base font-bold bg-gradient-to-br from-orange-500/30 to-orange-600/30">
+                    {client.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+
+              {/* Client Name */}
+              <span className="ml-1 sm:ml-2 text-[10px] min-[250px]:text-xs sm:text-sm md:text-base lg:text-lg font-semibold uppercase tracking-wide text-white/90 whitespace-nowrap leading-none">
+                {client.name}
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
   </div>
 )}
+      {/* Loading or Empty State */}
+      {clients.length === 0 && !loading && !showWelcome && (
+        <div className="absolute w-full bottom-0 left-0 right-0 border-t border-orange-400/30 bg-gradient-to-r from-orange-500/10 via-orange-500/20 to-orange-500/10 backdrop-blur-md py-3 sm:py-4 md:py-5 z-30">
+          <div className="text-center text-white/50 text-xs sm:text-sm">
+            <span className="inline-flex items-center gap-2">
+              <span className="w-1 h-1 rounded-full bg-orange-400/50"></span>
+              No clients to display
+              <span className="w-1 h-1 rounded-full bg-orange-400/50"></span>
+            </span>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

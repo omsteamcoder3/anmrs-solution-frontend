@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Roboto_Flex } from 'next/font/google';
+import Link from 'next/link';
 import { Category } from '@/types/category';
 import ProductGrid from '@/components/products/ProductGrid';
 import { getAllProducts, fetchActiveCategories } from '@/lib/api';
@@ -20,6 +21,7 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
   const [categoriesWithProducts, setCategoriesWithProducts] = useState<string[]>([]);
   const [checkingProducts, setCheckingProducts] = useState(true);
   const [productCounts, setProductCounts] = useState<Record<string, number>>({});
+  const [totalProductCount, setTotalProductCount] = useState(0);
   
   useEffect(() => {
     fetchActiveCategories().then(data => {
@@ -50,6 +52,7 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
           }
         });
         
+        setTotalProductCount(products.length);
         console.log("Category IDs found in products:", Array.from(categoryIds));
         console.log("Featured Categories:", featuredCategories);
         setCategoriesWithProducts(Array.from(categoryIds));
@@ -86,7 +89,7 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
     );
   }
 
-  if (visibleCategories.length === 0) {
+  if (visibleCategories.length === 0 && totalProductCount === 0) {
     return (
       <section className="py-12 sm:py-16 md:py-20 bg-orange-400">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,7 +133,7 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
           </div>
 
           <h2 className={`${agbalumo.className} text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-white mb-2 sm:mb-3 md:mb-4 tracking-tight px-2 drop-shadow-lg`}>
-            Explore Our Products
+            Our Products
           </h2>
 
           <p className="text-white/80 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl max-w-3xl mx-auto leading-relaxed px-3 sm:px-4 drop-shadow">
@@ -143,72 +146,62 @@ export default function ProductSection({ featuredCategories }: ProductSectionPro
           </div>
         </div>
 
-        {/* Categories */}
-        <div className="space-y-12 sm:space-y-16 md:space-y-20 lg:space-y-24">
-          {visibleCategories.map((category, index) => {
-            const productCount = productCounts[category._id.toString()] || 0;
-            const useCarousel = productCount > 3;
-            
-            return (
-              <div 
-                key={category._id} 
-                className="animate-fade-in-up" 
-                style={{ 
-                  animationDelay: `${index * 200}ms`,
-                  animationFillMode: 'both'
-                }}
+        {/* Single Products Section */}
+        <div className="animate-fade-in-up">
+          {/* Section Header with View All Button */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 md:mb-10 gap-4">
+            <div className="text-left">
+              <h3
+                className={`${agbalumo.className} text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-2 sm:mb-3 px-3 sm:px-0 drop-shadow-lg`}
               >
-                {/* Category Header */}
-                <div className="ml-0 sm:ml-4 md:ml-8 lg:ml-14 mb-6 sm:mb-8 md:mb-10 text-left">
-                  <div className="flex items-center justify-between flex-wrap gap-3">
-                    <h3
-                      className={`${agbalumo.className} text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-2 sm:mb-3 px-3 sm:px-0 drop-shadow-lg`}
-                    >
-                      {category.name}
-                    </h3>
-                    {useCarousel && (
-                      <div className="flex gap-2 px-3">
-                        <button
-                          className={`prev-${category._id} w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all duration-300`}
-                          aria-label="Previous products"
-                        >
-                          ←
-                        </button>
-                        <button
-                          className={`next-${category._id} w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all duration-300`}
-                          aria-label="Next products"
-                        >
-                          →
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                Our Products
+              </h3>
+           
+            </div>
+            
+            {totalProductCount > 6 && (
+              <Link href="/products" className="group px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl mx-3 sm:mx-0">
+                <span className="text-sm sm:text-base font-medium">View All Products</span>
+                <svg 
+                  className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            )}
+          </div>
 
-                  {/* Decorative underline */}
-                  <div className="flex justify-left">
-                    <div className="w-12 sm:w-16 md:w-20 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-full"></div>
-                  </div>
-                  
-                  {useCarousel && (
-                    <p className="text-white/60 text-xs sm:text-sm mt-2 px-3">
-                      {productCount} products available • Scroll to see more
-                    </p>
-                  )}
-                </div>
+          {/* Product Grid - Shows up to 6 products */}
+          <div className="backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8">
+            <ProductGrid 
+              limit={6}
+              hideFilters={true}
+              useCarousel={false}
+            />
+          </div>
 
-                {/* Product Grid with Carousel support */}
-                <div className="backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8">
-                  <ProductGrid 
-                    category={category._id} 
-                    limit={8} 
-                    hideFilters={true}
-                    useCarousel={useCarousel}
-                    categoryId={category._id}
-                  />
-                </div>
-              </div>
-            );
-          })}
+          {/* Mobile View All Button (visible when screen is smaller and button not shown in header) */}
+          {totalProductCount > 6 && (
+            <div className="mt-8 sm:mt-10 md:mt-12 text-center sm:hidden">
+              <Link 
+                href="/products" 
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all duration-300 shadow-lg"
+              >
+                <span className="text-sm font-medium">Browse All Products</span>
+                <svg 
+                  className="w-4 h-4" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </section>
