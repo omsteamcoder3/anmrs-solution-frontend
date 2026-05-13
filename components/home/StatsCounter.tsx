@@ -46,7 +46,7 @@ const Counter = ({ end, suffix, duration = 2, shouldStart }: { end: number; suff
   }, [shouldStart, end, duration, hasAnimated]);
 
   return (
-    <span className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-orange-400">
+    <span className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium text-orange-400">
       {count}
       {suffix}
     </span>

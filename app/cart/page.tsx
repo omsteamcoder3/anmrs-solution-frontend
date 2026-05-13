@@ -132,7 +132,7 @@ export default function CartPage() {
                   
                   // Build image URL
                   let imageUrl = null;
-                  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, '') || 'http://localhost:5000';
+                  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, '')
                   console.log('14. Base URL:', baseUrl);
                   
                   // Try variant image first

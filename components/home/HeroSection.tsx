@@ -310,53 +310,52 @@ export default function HeroSection() {
             {/* Category Slides - Only show after welcome slide ends */}
             {!loading && !showWelcome && categories.length > 0 && currentCategory && (
               <div className="space-y-4 sm:space-y-5 md:space-y-7 lg:space-y-9">
-                <motion.h1 
-                  key={`title-${currentCategory.slug}`}
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                  className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[8rem] font-black uppercase leading-[1.1] tracking-tighter text-white"
-                >
-                  {currentCategory.name.split(' ')[0]} <br />
-                  <motion.span 
-                    initial={{ x: -100, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 0.8, delay: 0.15 }}
-                    className="text-orange-400 inline-block"
-                  >
-                    {currentCategory.name.split(' ').slice(1).join(' ') || currentCategory.name}
-                  </motion.span>
-                </motion.h1>
+        <motion.h1 
+  key={`title-${currentCategory.slug}`}
+  initial={{ opacity: 0, x: -50 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.5, delay: 0.1 }}
+  className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[8rem] font-semibold uppercase leading-[1.1] tracking-tighter text-white"
+>
+  {currentCategory.name.split(' ')[0]} <br />
+  <motion.span 
+    initial={{ x: -100, opacity: 0 }}
+    animate={{ x: 0, opacity: 1 }}
+    transition={{ duration: 0.8, delay: 0.15 }}
+    className="text-orange-400 inline-block font-medium"
+  >
+    {currentCategory.name.split(' ').slice(1).join(' ') || currentCategory.name}
+  </motion.span>
+</motion.h1>
 
-                <motion.div
-                  key={`desc-${currentCategory.slug}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="relative"
-                >
-                  <p className="text-left max-w-[70%] sm:max-w-xl text-[8px] xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed text-gray-200">
-                    {currentCategory.description}
-                  </p>
-                  
-                  {/* Carousel Indicators */}
-                  {categories.length > 1 && (
-                    <div className="flex gap-2 mt-6 md:mt-8">
-                      {categories.map((category, index) => (
-                        <button
-                          key={category.slug}
-                          onClick={() => setCurrentIndex(index)}
-                          className={`h-1.5 md:h-2 rounded-full transition-all ${
-                            index === currentIndex 
-                              ? 'w-8 md:w-12 bg-orange-400' 
-                              : 'w-4 md:w-6 bg-white/30 hover:bg-white/50'
-                          }`}
-                          aria-label={`Go to ${category.name}`}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </motion.div>
+<motion.div
+  key={`desc-${currentCategory.slug}`}
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, delay: 0.2 }}
+  className="relative"
+>
+ <p className="text-left max-w-[70%] sm:max-w-xl text-[8px] xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-light leading-relaxed text-gray-200">
+  {currentCategory.description}
+</p>
+  {/* Carousel Indicators */}
+  {categories.length > 1 && (
+    <div className="flex gap-2 mt-6 md:mt-8">
+      {categories.map((category, index) => (
+        <button
+          key={category.slug}
+          onClick={() => setCurrentIndex(index)}
+          className={`h-1.5 md:h-2 rounded-full transition-all ${
+            index === currentIndex 
+              ? 'w-8 md:w-12 bg-orange-400' 
+              : 'w-4 md:w-6 bg-white/30 hover:bg-white/50'
+          }`}
+          aria-label={`Go to ${category.name}`}
+        />
+      ))}
+    </div>
+  )}
+</motion.div>
 
                 <motion.div 
                   initial={{ y: 50, opacity: 0 }}
@@ -426,7 +425,7 @@ export default function HeroSection() {
 
 {/* Dynamic Bottom Ticker - Mobile Responsive Updated */}
 {clients.length > 0 && !showWelcome && (
-  <div className="absolute w-full bottom-0 left-0 right-0 overflow-hidden border-t border-orange-400/20 bg-gradient-to-r from-orange-500/20 via-orange-500/10 to-orange-500/20 backdrop-blur-md py-1.5 sm:py-2 md:py-3 z-30">
+  <div className="absolute w-full bottom-0 left-0 right-0 overflow-hidden border-t border-orange-400/20 bg-gradient-to-r from-orange-500/20 via-orange-500/10 to-orange-500/20 backdrop-blur-md py-0.5 sm:py-1.5 md:py-2 lg:py-3 z-30">
     
     {/* Main Viewport Container */}
     <div
@@ -449,13 +448,13 @@ export default function HeroSection() {
             className="flex-shrink-0"
             style={{
               width: `${itemWidth}px`,
-              marginLeft: index === 0 ? "0" : `${gap}px`,
+              marginLeft: index === 0 ? "0" : `max(${gap}px, ${window.innerWidth < 768 ? gap * 0.25 : gap}px)`,
             }}
           >
-            <div className="flex items-center justify-center px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-center px-1 sm:px-2 md:px-3 lg:px-4 py-0.5 sm:py-1 md:py-1.5 transition-all duration-300 hover:scale-105">
               
               {/* Client Image */}
-              <div className="relative w-7 h-7 min-[250px]:w-8 min-[250px]:h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full overflow-hidden bg-gradient-to-br from-orange-400/20 to-orange-600/20 border border-orange-400/30 shadow-md flex-shrink-0">
+              <div className="relative w-5 h-5 min-[250px]:w-6 min-[250px]:h-6 sm:w-9 sm:h-9 md:w-11 md:h-11 lg:w-12 lg:h-12 overflow-hidden shadow-md flex-shrink-0">
                 
                 {client.imageUrl ? (
                   <Image
@@ -466,10 +465,11 @@ export default function HeroSection() {
                     }
                     alt={client.name}
                     fill
-                    className="object-cover transition-transform duration-300 hover:scale-110"
-                    sizes="(max-width: 250px) 28px,
-                           (max-width: 640px) 32px,
-                           (max-width: 768px) 40px,
+                    className="object-cover transition-transform duration-300 scale-140"
+                    sizes="(max-width: 250px) 20px,
+                           (max-width: 640px) 24px,
+                           (max-width: 768px) 36px,
+                           (max-width: 1024px) 44px,
                            48px"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement
@@ -477,16 +477,12 @@ export default function HeroSection() {
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white text-[10px] min-[250px]:text-xs sm:text-sm md:text-base font-bold bg-gradient-to-br from-orange-500/30 to-orange-600/30">
+                  <div className="w-full h-full flex items-center justify-center text-white text-[7px] min-[250px]:text-[9px] sm:text-xs md:text-sm lg:text-base font-bold bg-gradient-to-br from-orange-500/30 to-orange-600/30">
                     {client.name.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
 
-              {/* Client Name */}
-              <span className="ml-1 sm:ml-2 text-[10px] min-[250px]:text-xs sm:text-sm md:text-base lg:text-lg font-semibold uppercase tracking-wide text-white/90 whitespace-nowrap leading-none">
-                {client.name}
-              </span>
             </div>
           </Link>
         ))}

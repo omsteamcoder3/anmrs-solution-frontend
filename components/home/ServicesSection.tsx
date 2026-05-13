@@ -70,7 +70,7 @@ export default function ServicesSection() {
     if (!imagePath) return null
     if (imagePath.startsWith('http')) return imagePath
     if (imagePath.startsWith('/uploads')) {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002"
+      const API_URL = process.env.NEXT_PUBLIC_API_URL 
       return `${API_URL}${imagePath}`
     }
     return imagePath

@@ -257,7 +257,7 @@ export default function UserProfile() {
         return;
       }
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL 
       const pdfEndpoint = `${apiUrl}/orders/${orderId}/receipt/pdf`;
       
       const response = await fetch(pdfEndpoint, {
