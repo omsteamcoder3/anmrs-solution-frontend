@@ -39,6 +39,7 @@ export interface PublicSettings {
   callNumber: string;
   contactEmail: string;
   companyAddress: string;
+  businessHours: string;
   siteName: string;
   siteTitle: string;
   siteDescription: string;

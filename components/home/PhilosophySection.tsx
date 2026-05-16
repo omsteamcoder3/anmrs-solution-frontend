@@ -7,13 +7,15 @@ import {
   Smartphone, Clock, FileText, CircleCheck, Store, 
   MapPin, Phone, Mail, Globe 
 } from "lucide-react";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 
 export default function PhilosophySection() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [cardWidth, setCardWidth] = useState(0);
+  const [itemsToShow, setItemsToShow] = useState(5);
+  const [isLooping, setIsLooping] = useState(false);
   
   const categories = [
     { name: "ID Cards", image: "/images/j1.webp" },
@@ -29,8 +31,15 @@ export default function PhilosophySection() {
     { name: "Graphic Design", image: "/images/j11.webp" },
   ];
 
-  // Triple the array for infinite scroll
-  const loopCategories = [...categories, ...categories, ...categories];
+  // Create extended array for smooth infinite scroll (add extra cards at both ends)
+  const getExtendedCategories = useCallback(() => {
+    if (categories.length === 0) return [];
+    // Add extra sets for smooth infinite scrolling
+    return [...categories.slice(-itemsToShow), ...categories, ...categories.slice(0, itemsToShow)];
+  }, [categories, itemsToShow]);
+
+  const extendedCategories = getExtendedCategories();
+  const extendedStartIndex = itemsToShow; // Starting index in the extended array
 
   // Store features for the grid
   const storeFeatures = [
@@ -50,13 +59,14 @@ export default function PhilosophySection() {
           const containerWidth = container.clientWidth;
           const gapSize = 12;
           // Show 2-5 items based on screen size
-          let itemsToShow = 5;
-          if (window.innerWidth < 640) itemsToShow = 2;
-          else if (window.innerWidth < 768) itemsToShow = 3;
-          else if (window.innerWidth < 1024) itemsToShow = 4;
-          else itemsToShow = 5;
+          let itemsToShowCount = 5;
+          if (window.innerWidth < 640) itemsToShowCount = 2;
+          else if (window.innerWidth < 768) itemsToShowCount = 3;
+          else if (window.innerWidth < 1024) itemsToShowCount = 4;
+          else itemsToShowCount = 5;
           
-          const width = (containerWidth - (gapSize * (itemsToShow - 1))) / itemsToShow;
+          setItemsToShow(itemsToShowCount);
+          const width = (containerWidth - (gapSize * (itemsToShowCount - 1))) / itemsToShowCount;
           setCardWidth(width);
         }
       }
@@ -67,19 +77,36 @@ export default function PhilosophySection() {
     return () => window.removeEventListener('resize', updateCardWidth);
   }, []);
 
+  // Handle infinite loop by resetting position without animation
   useEffect(() => {
-    if (isHovered) return;
+    if (isLooping) return;
+    
+    if (currentIndex >= categories.length) {
+      setIsLooping(true);
+      setCurrentIndex(0);
+      setTimeout(() => setIsLooping(false), 50);
+    } else if (currentIndex < 0) {
+      setIsLooping(true);
+      setCurrentIndex(categories.length - 1);
+      setTimeout(() => setIsLooping(false), 50);
+    }
+  }, [currentIndex, categories.length, isLooping]);
+
+  useEffect(() => {
+    if (isHovered || isLooping) return;
     const interval = setInterval(() => {
       setCurrentIndex(prev => prev + 1);
     }, 3000);
     return () => clearInterval(interval);
-  }, [isHovered]);
+  }, [isHovered, isLooping]);
 
   const getTranslateValue = () => {
-    if (cardWidth === 0) return 0;
+    if (cardWidth === 0 || categories.length === 0) return 0;
     const gapSize = 12;
     const slideDistance = cardWidth + gapSize;
-    return -(currentIndex * slideDistance);
+    // Use the extended array index for smooth scrolling
+    const extendedIndex = extendedStartIndex + currentIndex;
+    return -(extendedIndex * slideDistance);
   };
 
   return (
@@ -270,37 +297,77 @@ export default function PhilosophySection() {
                 transition={{ duration: 0.5, ease: "easeInOut" }}
                 style={{ width: 'max-content' }}
               >
-     {loopCategories.map((category, idx) => (
-  <motion.div
-    key={`${category.name}-${idx}`}
-    whileHover={{
-      scale: 1.05,
-      backgroundColor: "#f97316",
-      color: "#000000",
-    }}
-    className="flex flex-col items-center justify-center gap-2 px-3 py-3 bg-gray-900 text-gray-300 rounded-lg hover:bg-orange-400 hover:text-black transition-all duration-300 cursor-pointer"
-    style={{
-      width: cardWidth ? `${cardWidth}px` : "auto",
-    }}
-  >
-    <div className="relative w-10 h-10">
-      <Image
-        src={category.image}
-        alt={category.name}
-        fill
-        className="object-contain invert"
-      />
-    </div>
+                {extendedCategories.map((category, idx) => {
+                  // Get the actual index for any needed logic
+                  const actualIndex = ((idx - itemsToShow) % categories.length + categories.length) % categories.length;
+                  return (
+                    <motion.div
+                      key={`${category.name}-${idx}`}
+                      whileHover={{
+                        scale: 1.05,
+                        backgroundColor: "#f97316",
+                        color: "#000000",
+                      }}
+                      className="flex flex-col items-center justify-center gap-2 px-3 py-3 bg-gray-900 text-gray-300 rounded-lg hover:bg-orange-400 hover:text-black transition-all duration-300 cursor-pointer"
+                      style={{
+                        width: cardWidth ? `${cardWidth}px` : "auto",
+                      }}
+                    >
+                      <div className="relative w-10 h-10">
+                        <Image
+                          src={category.image}
+                          alt={category.name}
+                          fill
+                          className="object-contain invert"
+                        />
+                      </div>
 
-    <span className="text-xs text-center">
-      {category.name}
-    </span>
-  </motion.div>
-))}
+                      <span className="text-xs text-center">
+                        {category.name}
+                      </span>
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             </div>
           </div>
 
+          {/* Navigation Arrows */}
+          <button
+            onClick={() => setCurrentIndex(prev => prev - 1)}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition-all duration-300 z-10 backdrop-blur-sm"
+            aria-label="Previous slide"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+
+          <button
+            onClick={() => setCurrentIndex(prev => prev + 1)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition-all duration-300 z-10 backdrop-blur-sm"
+            aria-label="Next slide"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+
+          {/* Dots Indicator */}
+          <div className="flex justify-center gap-2 mt-6">
+            {categories.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? 'w-8 bg-orange-400' 
+                    : 'w-1.5 bg-white/30 hover:bg-white/50'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
 
           {/* Payment Methods Row */}
           <div className="flex flex-wrap justify-center gap-3 mt-6 pt-4 border-t border-gray-800/50">

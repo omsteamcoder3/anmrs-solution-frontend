@@ -237,7 +237,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
   return (
     <>
       {/* Main Header - Black background with orange accents */}
-      <div className="xl:sticky xl:top-0 z-40 w-full ">
+      <div className="lg:sticky lg:top-0 z-40 w-full ">
         <header className="bg-black shadow-lg shadow-black/50 border-b border-white/10  w-full">
           <div className="container mx-auto px-2 sm:px-3 lg:px-4 max-w-full">
             <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20 w-full">
@@ -257,7 +257,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
               </Link>
 
            {/* Desktop Navigation - Hidden on mobile/tablet */}
-<nav className="hidden xl:flex items-center space-x-1 flex-shrink-0">
+<nav className="hidden lg:flex items-center space-x-1 flex-shrink-0">
   <Link 
     href="/" 
     className={`text-white hover:text-orange-400 transition-all duration-300 font-black ${markoOne.className} px-3 py-2 rounded-lg hover:bg-white/10 border border-transparent hover:border-orange-400/50 text-sm 2xl:text-base uppercase tracking-wider cursor-pointer whitespace-nowrap`}
@@ -345,9 +345,8 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
                 {/* Search Component */}
                 <div ref={searchContainerRef} className="relative flex items-center">
                   {showSearch ? (
-                    <div className="fixed inset-0 xl:relative xl:inset-auto z-50 flex items-start xl:items-center justify-center xl:block pt-16 xl:pt-0 px-3">
-                      {/* Mobile Full-Screen Search */}
-                      <div className="xl:hidden fixed inset-0 bg-black/95 backdrop-blur-xl pt-16">
+<div className="fixed inset-0 lg:relative lg:inset-auto z-50 flex items-start lg:items-center justify-center lg:block pt-16 lg:pt-0 px-3">                      {/* Mobile Full-Screen Search */}
+                      <div className="lg:hidden fixed inset-0 bg-black/95 backdrop-blur-xl pt-16">
                         <div className="container mx-auto px-3">
                           <div className="flex items-center gap-2 mb-4">
                             <div className="flex-1 flex items-center bg-white/5 rounded-lg px-3 py-2 border border-white/10 focus-within:border-orange-400/50 transition-colors">
@@ -456,8 +455,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
                       </div>
                       
                       {/* Desktop Search Container */}
-                      <div className="hidden xl:block absolute top-0 xl:relative w-full max-w-[90vw] sm:max-w-[350px] md:max-w-[400px] xl:w-80 2xl:w-96 mx-auto xl:mx-0">
-                        <div className="bg-black/90 backdrop-blur-xl rounded-lg shadow-2xl border border-white/10 p-1.5">
+<div className="hidden lg:block absolute top-0 lg:relative w-full max-w-[90vw] sm:max-w-[350px] md:max-w-[400px] lg:w-80 2xl:w-96 mx-auto lg:mx-0">                        <div className="bg-black/90 backdrop-blur-xl rounded-lg shadow-2xl border border-white/10 p-1.5">
                           <form onSubmit={handleSearchSubmit} className="flex items-center gap-1.5">
                             <div className="flex-1 flex items-center bg-white/5 rounded-md px-3 py-1.5 border border-white/10 focus-within:border-orange-400/50 transition-colors">
                               <Search className="w-3.5 h-3.5 text-orange-400 mr-1.5 flex-shrink-0" />
@@ -669,7 +667,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
                 {/* Burger Menu Button - Moved to far right */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="xl:hidden p-2 text-white hover:text-orange-400 transition-all duration-300 hover:bg-white/10 rounded-lg cursor-pointer border border-transparent hover:border-orange-400/50 ml-auto"
+                  className="lg:hidden p-2 text-white hover:text-orange-400 transition-all duration-300 hover:bg-white/10 rounded-lg cursor-pointer border border-transparent hover:border-orange-400/50 ml-auto"
                   aria-label="Toggle mobile menu"
                 >
                   <Menu className="w-5 h-5" />
@@ -679,7 +677,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
 
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
-              <div ref={mobileMenuRef} className="xl:hidden fixed inset-0 z-50">
+              <div ref={mobileMenuRef} className="lg:hidden fixed inset-0 z-50">
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -825,7 +823,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
         fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 shadow-2xl z-40
         transition-transform duration-300 ease-in-out
         ${isFooterVisible ? 'translate-y-0' : 'translate-y-full'}
-        xl:hidden
+        lg:hidden
       `}>
         <div className="container mx-auto px-1">
           <div className="flex items-center justify-between h-14">

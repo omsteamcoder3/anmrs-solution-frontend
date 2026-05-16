@@ -155,7 +155,7 @@ export default function Footer() {
                 <svg className="w-5 h-5 mr-3 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Mon–Fri · 9AM–6PM
+                {settings.businessHours}
               </li>
             </ul>
 
@@ -210,9 +210,9 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="border-t border-orange-400/20 mt-10 sm:mt-12 md:mt-16 pt-6 sm:pt-8 text-center">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
-            <p className={`${markoOne.className} text-white/60 text-sm sm:text-base`}>
-              © 2012 {settings.siteName}. All rights reserved.
-            </p>
+        <p className={`${markoOne.className} text-white/60 text-sm sm:text-base`}>
+  {settings.footerText}
+</p>
             <div className="flex gap-6 sm:gap-8">
               <Link href="/privacy" className={`${markoOne.className} text-white/60 hover:text-orange-400 transition-colors text-sm sm:text-base`}>
                 Privacy
