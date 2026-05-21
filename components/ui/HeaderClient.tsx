@@ -62,6 +62,7 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
   
   // Scroll behavior for footer
   const [isFooterVisible, setIsFooterVisible] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -74,37 +75,46 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
   }, []);
 
   // Scroll behavior for footer
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsFooterVisible(true);
-      } else {
-        setIsFooterVisible(false);
-      }
-      
-      setLastScrollY(currentScrollY);
-    };
+useEffect(() => {
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
 
-    let ticking = false;
-    const throttledScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
+    // scrolling down
+    if (currentScrollY > lastScrollY && currentScrollY > 80) {
+      setIsFooterVisible(true);
+      setIsHeaderVisible(false);
+    }
 
-    window.addEventListener('scroll', throttledScroll, { passive: true });
-    
-    return () => {
-      window.removeEventListener('scroll', throttledScroll);
-    };
-  }, [lastScrollY]);
+    // scrolling up
+    else {
+      setIsFooterVisible(false);
+      setIsHeaderVisible(true);
+    }
 
+    setLastScrollY(currentScrollY);
+  };
+
+  let ticking = false;
+
+  const throttledScroll = () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        handleScroll();
+        ticking = false;
+      });
+
+      ticking = true;
+    }
+  };
+
+  window.addEventListener('scroll', throttledScroll, {
+    passive: true,
+  });
+
+  return () => {
+    window.removeEventListener('scroll', throttledScroll);
+  };
+}, [lastScrollY]);
   // Search functionality
   useEffect(() => {
     const performSearch = async () => {
@@ -237,8 +247,14 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
   return (
     <>
       {/* Main Header - Black background with orange accents */}
-      <div className="lg:sticky lg:top-0 z-40 w-full ">
-        <header className="bg-black shadow-lg shadow-black/50 border-b border-white/10  w-full">
+      <div className="fixed top-0 left-0 right-0 z-50 w-full">
+      <header
+  className={`
+    bg-black shadow-lg shadow-black/50 border-b border-white/10 w-full
+    transition-transform duration-300 ease-in-out
+    ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}
+  `}
+>
           <div className="container mx-auto px-2 sm:px-3 lg:px-4 max-w-full">
             <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20 w-full">
               {/* Logo - Left side */}
@@ -676,7 +692,10 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
             </div>
 
             {/* Mobile Menu */}
-            {isMobileMenuOpen && (
+          
+          </div>
+        </header>
+          {isMobileMenuOpen && (
               <div ref={mobileMenuRef} className="lg:hidden fixed inset-0 z-50">
                 <motion.div 
                   initial={{ opacity: 0 }}
@@ -814,8 +833,6 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
                 </motion.div>
               </div>
             )}
-          </div>
-        </header>
       </div>
 
       {/* Bottom Navigation Footer */}

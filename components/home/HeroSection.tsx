@@ -189,7 +189,7 @@ export default function HeroSection() {
   const infiniteClients = [...clients, ...clients, ...clients, ...clients];
 
   return (
-    <section ref={sectionRef} className="relative min-h-[300px] lg:min-h-[900px] xl:min-h-[900px] w-full overflow-hidden bg-black">
+    <section ref={sectionRef} className="relative min-h-[320px] lg:min-h-[900px] xl:min-h-[900px] w-full overflow-hidden bg-black">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <Image
@@ -213,7 +213,7 @@ export default function HeroSection() {
       </motion.div>
 
       {/* Main Content - Perfectly Centered */}
-      <div className="relative h-full w-full mx-auto max-w-7xl px-4 z-20">
+      <div className="relative h-full w-full mx-auto max-w-7xl mt-8 sm:mt-15 px-4 z-20">
         {/* Grid container that takes full height */}
         <div className="grid h-full grid-cols-1 lg:grid-cols-2 items-center">
           {/* Left Content - Vertically centered automatically by grid items-center */}
@@ -446,15 +446,15 @@ export default function HeroSection() {
             key={`${client.slug}-${index}`}
             href={`/clients/${client.slug}`}
             className="flex-shrink-0"
-            style={{
-              width: `${itemWidth}px`,
-              marginLeft: index === 0 ? "0" : `max(${gap}px, ${window.innerWidth < 768 ? gap * 0.25 : gap}px)`,
+           style={{
+  width: `${itemWidth - 50}px`,
+              marginLeft: index === 0 ? "0" : `${window.innerWidth < 768 ? 0 : 1}px`,
             }}
           >
-            <div className="flex items-center justify-center px-1 sm:px-2 md:px-3 lg:px-4 py-0.5 sm:py-1 md:py-1.5 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-center px-0.5 sm:px-1 md:px-1.5 lg:px-2 py-0 transition-all duration-300 hover:scale-105">
               
               {/* Client Image */}
-              <div className="relative w-5 h-5 min-[250px]:w-6 min-[250px]:h-6 sm:w-9 sm:h-9 md:w-11 md:h-11 lg:w-12 lg:h-12 overflow-hidden shadow-md flex-shrink-0">
+              <div className="relative w-5 h-5 min-[250px]:w-6 min-[250px]:h-6 sm:w-9 sm:h-9 md:w-11 md:h-11 lg:w-12 lg:h-12 shadow-md flex-shrink-0">
                 
                 {client.imageUrl ? (
                   <Image
@@ -465,7 +465,15 @@ export default function HeroSection() {
                     }
                     alt={client.name}
                     fill
-                    className="object-cover transition-transform duration-300 scale-140"
+                    className="object-contain transition-transform duration-300 scale-200"
+                        style={{
+      filter: `
+        drop-shadow(-0.5px 0 white)
+        drop-shadow(0.5px 0 white)
+        drop-shadow(0 -0.5px white)
+        drop-shadow(0 0.5px white)
+      `,
+    }}
                     sizes="(max-width: 250px) 20px,
                            (max-width: 640px) 24px,
                            (max-width: 768px) 36px,
