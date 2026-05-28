@@ -68,15 +68,16 @@ export default function ServicesSection() {
     }
   }
 
-  const getImageUrl = (imagePath: string) => {
-    if (!imagePath) return null
-    if (imagePath.startsWith('http')) return imagePath
-    if (imagePath.startsWith('/uploads')) {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL 
-      return `${API_URL}${imagePath}`
-    }
-    return imagePath
-  }
+const getImageUrl = (imagePath: string) => {
+  if (!imagePath) return null
+
+  // already full url
+  if (imagePath.startsWith('http')) return imagePath
+
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
+
+  return `${BASE_URL}${imagePath}`
+}
 
   // Create extended array for smooth infinite scroll (add extra cards at both ends)
   const getExtendedServices = useCallback(() => {
