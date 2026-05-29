@@ -174,7 +174,7 @@ export default function HeroSection() {
 
   // Start animation when clients are loaded and welcome slide is done
   useEffect(() => {
-    if (clients.length > 0 && !showWelcome) {
+    if (clients.length > 0) {
       animationRef.current = requestAnimationFrame(animate);
       return () => {
         if (animationRef.current) {
@@ -424,7 +424,7 @@ export default function HeroSection() {
       />
 
 {/* Dynamic Bottom Ticker - Mobile Responsive Updated */}
-{clients.length > 0 && !showWelcome && (
+{clients.length > 0 && (
   <div className="absolute w-full bottom-0 left-0 right-0 overflow-hidden border-t border-orange-400/20 bg-gradient-to-r from-orange-500/20 via-orange-500/10 to-orange-500/20 backdrop-blur-md py-0.5 sm:py-1.5 md:py-2 lg:py-3 z-30">
     
     {/* Main Viewport Container */}
