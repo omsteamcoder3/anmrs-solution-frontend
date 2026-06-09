@@ -40,9 +40,15 @@ interface HeaderClientProps {
     siteNameMain: string;
     siteNameTagline: string;
   };
+  initialMapAndLogoSettings?: {
+    logo: string;
+    logoAlt: string;
+    logoLink: string;
+    mapEmbedUrl: string;
+    isActive: boolean;
+  };
 }
-
-export default function HeaderClient({ initialCategories, initialSiteSettings }: HeaderClientProps) {
+export default function HeaderClient({ initialCategories, initialSiteSettings,initialMapAndLogoSettings  }: HeaderClientProps) {
   const [mounted, setMounted] = useState(false);
   const { user, logout } = useAuth();
   const { cart } = useCart();
@@ -57,7 +63,13 @@ export default function HeaderClient({ initialCategories, initialSiteSettings }:
   const categoriesWithProducts = initialCategories;
   const [siteNameMain] = useState(initialSiteSettings.siteNameMain);
   const [siteNameTagline] = useState(initialSiteSettings.siteNameTagline);
-  
+   const [logoSettings, setLogoSettings] = useState(initialMapAndLogoSettings || {
+    logo: '',
+    logoAlt: 'Company Logo',
+    logoLink: '/',
+    mapEmbedUrl: '',
+    isActive: true
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Scroll behavior for footer
@@ -234,6 +246,26 @@ useEffect(() => {
     };
   }, [showSearch, showShopDropdown, isMobileMenuOpen]);
 
+// Fetch logo settings on client side to ensure we get latest data
+useEffect(() => {
+  const fetchLogoSettings = async () => {
+    try {
+   const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/public/map-logo`);
+      const data = await response.json();
+      console.log('Logo settings response:', data);
+      
+      if (data.success && data.data) {
+        setLogoSettings(data.data);
+        console.log('Logo URL:', `${process.env.NEXT_PUBLIC_BASE_URL}/uploads/${data.data.logo}`);
+      }
+    } catch (error) {
+      console.error('Error fetching logo settings:', error);
+    }
+  };
+
+  // Always fetch fresh logo settings on mount
+  fetchLogoSettings();
+}, []); // Remove dependency on initialMapAndLogoSettings
   // Calculate cart items count safely
   const getCartItemCount = () => {
     if (!cart?.items) return 0;
@@ -257,20 +289,34 @@ useEffect(() => {
 >
           <div className="container mx-auto px-2 sm:px-3 lg:px-4 max-w-full">
             <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20 w-full">
-              {/* Logo - Left side */}
-              <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer flex-shrink-0">
-                <div className="relative flex-shrink-0">
-                  <Image
-                    src="/images/logo.png"
-                    alt="logo"
-                    width={40}
-                    height={40}
-                    priority
-                    className="w-30 h-30 sm:w-50 sm:h-50   object-contain"
-                  />
-                </div>
-               
-              </Link>
+<Link href={logoSettings.logoLink || '/'} className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer flex-shrink-0">
+  <div className="relative flex-shrink-0">
+    {logoSettings.logo ? (
+      <img
+        src={`${process.env.NEXT_PUBLIC_BASE_URL}/uploads/${logoSettings.logo}`}
+        alt={logoSettings.logoAlt || 'logo'}
+        className="w-26 h-26 sm:w-42 sm:h-42 object-contain"
+        onError={(e) => {
+          console.error('Image failed to load:', e);
+          e.currentTarget.style.display = 'none';
+          // Show fallback
+          const parent = e.currentTarget.parentElement;
+          if (parent) {
+            const fallback = document.createElement('div');
+            fallback.className = 'w-10 h-10 sm:w-12 sm:h-12 bg-orange-400 rounded-full flex items-center justify-center text-black font-black text-sm uppercase';
+            fallback.textContent = initialSiteSettings.siteNameMain?.charAt(0) || 'A';
+            parent.appendChild(fallback);
+            e.currentTarget.remove();
+          }
+        }}
+      />
+    ) : (
+      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-400 rounded-full flex items-center justify-center text-black font-black text-sm uppercase">
+        {initialSiteSettings.siteNameMain?.charAt(0) || 'A'}
+      </div>
+    )}
+  </div>
+</Link>
 
            {/* Desktop Navigation - Hidden on mobile/tablet */}
 <nav className="hidden lg:flex items-center space-x-1 flex-shrink-0">

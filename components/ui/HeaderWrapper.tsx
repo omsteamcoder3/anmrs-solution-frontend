@@ -15,33 +15,32 @@ interface SiteSettings {
   siteNameTagline: string;
 }
 
+interface MapAndLogoSettings {
+  logo: string;
+  logoAlt: string;
+  logoLink: string;
+  mapEmbedUrl: string;
+  isActive: boolean;
+}
+
 export default async function HeaderWrapper() {
   let categories: Category[] = [];
   let siteSettings: SiteSettings = {
     siteNameMain: '',
     siteNameTagline: ''
   };
+  let mapAndLogoSettings: MapAndLogoSettings = {
+    logo: '',
+    logoAlt: 'Company Logo',
+    logoLink: '/',
+    mapEmbedUrl: '',
+    isActive: true
+  };
   
   try {
     // Fetch all active categories (no filtering)
     const allCategories = await fetchActiveCategories();
-    
-    // ❌ REMOVE THIS PRODUCT FILTERING LOGIC
-    // // Filter categories that have products on the server side
-    // const categoriesWithProducts: Category[] = [];
-    // 
-    // for (const category of allCategories) {
-    //   const response = await getAllProducts({ category: category._id });
-    //   if (response.data && response.data.length > 0) {
-    //     categoriesWithProducts.push(category);
-    //   }
-    // }
-    // 
-    // categories = categoriesWithProducts;
-    
-    // ✅ Simply assign all categories
     categories = allCategories;
-    
   } catch (error) {
     console.error('Error loading categories:', error);
   }
@@ -64,8 +63,33 @@ export default async function HeaderWrapper() {
     console.error('Error loading site settings:', error);
   }
   
+  try {
+    // Fetch map and logo settings on the server
+    const apiBaseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+
+const response = await fetch(`${apiBaseUrl}/api/public/map-logo`, {
+  cache: 'no-store'
+});
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.data) {
+        mapAndLogoSettings = {
+          logo: data.data.logo || '',
+          logoAlt: data.data.logoAlt || 'Company Logo',
+          logoLink: data.data.logoLink || '/',
+          mapEmbedUrl: data.data.mapEmbedUrl || '',
+          isActive: data.data.isActive !== false
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Error loading map and logo settings:', error);
+  }
+  
   return <HeaderClient 
     initialCategories={categories} 
     initialSiteSettings={siteSettings}
+    initialMapAndLogoSettings={mapAndLogoSettings}
   />;
 }

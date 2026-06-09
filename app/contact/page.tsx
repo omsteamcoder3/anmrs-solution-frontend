@@ -1,13 +1,181 @@
 "use client";
 
 import { motion } from "framer-motion"
-import { useRef } from "react"
+import { useRef, useEffect, useState } from "react"
 import PageHeader from "@/components/ui/PageHeader";
 import EnquirySection from "@/components/home/EnquirySection";
 import { MapPin, Phone, Clock, Mail } from "lucide-react"
 
+// API base URL - remove trailing slash and avoid duplicate /api
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+
+interface SettingsData {
+  contactNumber?: string;
+  whatsappNumber?: string;
+  callNumber?: string;
+  contactEmail?: string;
+  companyAddress?: string;
+  businessHours?: string;
+}
+
 export default function ContactPage() {
   const sectionRef = useRef(null)
+  const [settings, setSettings] = useState<SettingsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setLoading(true);
+        // Make sure we don't have duplicate /api
+        const apiUrl = `${API_BASE_URL}/settings/public`;
+        console.log("Fetching from:", apiUrl); // Debug log
+        
+        const response = await fetch(apiUrl);
+        
+        // Check if response is OK before trying to parse JSON
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Check content type
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Server did not return JSON. Check if the endpoint exists.");
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          setSettings(data.data);
+        } else {
+          setError(data.message || "Failed to load settings");
+        }
+      } catch (err) {
+        console.error("Error fetching settings:", err);
+        setError("Could not load contact information. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
+  // Helper function to get phone number (prefer callNumber, then whatsappNumber, then contactNumber)
+  const getPhoneNumber = () => {
+    if (settings?.callNumber) return settings.callNumber;
+    if (settings?.whatsappNumber) return settings.whatsappNumber;
+    if (settings?.contactNumber) return settings.contactNumber;
+    return "98844 96177"; // Fallback
+  };
+
+  // Parse business hours - handle both string format and display
+  const getBusinessHours = () => {
+    if (settings?.businessHours) {
+      // If businessHours contains a dash or formatting, split it for display
+      const hours = settings.businessHours;
+      if (hours.includes("·") || hours.includes("-")) {
+        const parts = hours.split("·").map(p => p.trim());
+        if (parts.length === 2) {
+          return { days: parts[0], time: parts[1] };
+        }
+      }
+      // Try to split by dash
+      if (hours.includes("-")) {
+        const parts = hours.split("-").map(p => p.trim());
+        if (parts.length === 2) {
+          return { days: parts[0], time: parts[1] };
+        }
+      }
+      return { days: hours, time: "" };
+    }
+    return { days: "Mon - Sat", time: "9:00 AM - 7:00 PM" };
+  };
+
+  const businessHoursObj = getBusinessHours();
+
+  // Get website domain from email or use fallback
+  const getWebsiteDomain = () => {
+    if (settings?.contactEmail) {
+      const domain = settings.contactEmail.split("@")[1];
+      return domain;
+    }
+    return "anmrs.com";
+  };
+
+  // Get display email
+  const getDisplayEmail = () => {
+    if (settings?.contactEmail) {
+      return settings.contactEmail;
+    }
+    return "id@anmrs.com";
+  };
+
+  // Get address lines from company address
+  const getAddressLines = () => {
+    if (settings?.companyAddress) {
+      const address = settings.companyAddress;
+      // Split by common delimiters: commas and newlines
+      const parts = address.split(",").map(p => p.trim());
+      if (parts.length >= 3) {
+        return {
+          line1: parts[0],
+          line2: parts[1],
+          line3: parts.slice(2).join(", ")
+        };
+      }
+      return { line1: address, line2: "", line3: "" };
+    }
+    return {
+      line1: "No.4A 3rd Street, Sanjay Gandhi Nagar",
+      line2: "Chromepet, Chennai",
+      line3: "Tamil Nadu - 600044"
+    };
+  };
+
+  const addressLines = getAddressLines();
+
+  // Format phone number for display (add space if needed)
+  const formatPhoneNumber = (phone: string) => {
+    // If it already has a space or is in a formatted way, return as is
+    if (phone.includes(" ")) return phone;
+    // If it's 10 digits, format as XXXX XXXXX
+    if (/^\d{10}$/.test(phone.replace(/[^0-9]/g, ""))) {
+      const digits = phone.replace(/[^0-9]/g, "");
+      return `${digits.slice(0, 5)} ${digits.slice(5)}`;
+    }
+    return phone;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center">
+        <div className="w-12 h-12 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-gray-600">Loading contact information...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="mt-2 px-4 py-2 bg-orange-400 text-white rounded hover:bg-orange-500 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  const phoneNumber = getPhoneNumber();
+  const formattedPhone = formatPhoneNumber(phoneNumber);
+  const displayEmail = getDisplayEmail();
+  const websiteDomain = getWebsiteDomain();
 
   return (
     <motion.div 
@@ -46,10 +214,10 @@ export default function ContactPage() {
                   <MapPin className="mb-4 sm:mb-6 text-orange-400" size={32} />
                 </motion.div>
                 <h4 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-black uppercase">Our Location</h4>
-                <p className="text-sm sm:text-base  text-gray-500 group-hover:text-gray-400">
-                  No.4A 3rd Street, Sanjay Gandhi Nagar, <br className="hidden xs:block" />
-                  Chromepet, Chennai, <br className="hidden xs:block" />
-                  Tamil Nadu - 600044
+                <p className="text-sm sm:text-base text-gray-500 group-hover:text-gray-400">
+                  {addressLines.line1}<br className="hidden xs:block" />
+                  {addressLines.line2 && <>{addressLines.line2}<br className="hidden xs:block" /></>}
+                  {addressLines.line3}
                 </p>
               </motion.div>
 
@@ -87,9 +255,11 @@ export default function ContactPage() {
                   }}
                   className="text-2xl sm:text-3xl font-black tracking-tight text-orange-400 break-words"
                 >
-                  98844 96177
+                  {formattedPhone}
                 </motion.p>
-                <p className="mt-2 text-sm sm:text-base  text-gray-500 group-hover:text-gray-400">Mon-Sat, 9am - 7pm</p>
+                <p className="mt-2 text-sm sm:text-base text-gray-500 group-hover:text-gray-400">
+                  {businessHoursObj.days}, {businessHoursObj.time}
+                </p>
               </motion.div>
 
               {/* Email Card */}
@@ -114,8 +284,7 @@ export default function ContactPage() {
                   <Mail className="mb-4 sm:mb-6 text-orange-400" size={32} />
                 </motion.div>
                 <h4 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-black uppercase">Email Us</h4>
-                <p className="text-lg sm:text-xl  text-orange-400 break-all">id@anmrs.com</p>
-                <p className="mt-2 text-sm sm:text-base  text-gray-500 group-hover:text-gray-400 break-all">www.anmrs.com</p>
+                <p className="text-lg sm:text-xl text-orange-400 break-all">{displayEmail}</p>
               </motion.div>
 
               {/* Hours Card */}
@@ -140,21 +309,23 @@ export default function ContactPage() {
                   <Clock className="mb-4 sm:mb-6 text-orange-400" size={32} />
                 </motion.div>
                 <h4 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-black uppercase">Opening Hours</h4>
-                <div className="space-y-2 sm:space-y-1  text-gray-500 group-hover:text-gray-400">
+                <div className="space-y-2 sm:space-y-1 text-gray-500 group-hover:text-gray-400">
                   <motion.p 
                     whileHover={{ x: 5 }}
                     className="flex flex-col xs:flex-row justify-between gap-1 text-sm sm:text-base"
                   >
-                    <span>Mon - Sat:</span> 
-                    <span className="text-orange-400">9:00 AM - 7:00 PM</span>
+                    <span>{businessHoursObj.days}:</span> 
+                    <span className="text-orange-400">{businessHoursObj.time}</span>
                   </motion.p>
-                  <motion.p 
-                    whileHover={{ x: 5 }}
-                    className="flex flex-col xs:flex-row justify-between gap-1 text-sm sm:text-base"
-                  >
-                    <span>Sunday:</span> 
-                    <span className="text-gray-400">Closed</span>
-                  </motion.p>
+                  {!settings?.businessHours?.toLowerCase().includes("sun") && (
+                    <motion.p 
+                      whileHover={{ x: 5 }}
+                      className="flex flex-col xs:flex-row justify-between gap-1 text-sm sm:text-base"
+                    >
+                      <span>Sunday:</span> 
+                      <span className="text-gray-400">Closed</span>
+                    </motion.p>
+                  )}
                 </div>
               </motion.div>
             </div>
@@ -170,7 +341,7 @@ export default function ContactPage() {
               <motion.div 
                 whileHover={{ scale: 1.02}}
                 transition={{ duration: 0.5 }}
-                className="h-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-hidden   shadow-2xl grayscale hover:grayscale-0"
+                className="h-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-hidden shadow-2xl grayscale hover:grayscale-0"
               >
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.234567891234!2d80.1394!3d12.9455!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a525f123456789%3A0x123456789abcdef!2sSanjay%20Gandhi%20Nagar%2C%20Chromepet%2C%20Chennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1625484839282!5m2!1sen!2sin"

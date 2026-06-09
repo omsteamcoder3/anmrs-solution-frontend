@@ -11,22 +11,43 @@ const markoOne = Roboto_Flex({
   subsets: ['latin'],
   display: 'swap',
 });
+interface MapAndLogoSettings {
+  logo: string;
+  logoAlt: string;
+  logoLink: string;
+  mapEmbedUrl: string;
+  isActive: boolean;
+}
 
 export default function Footer() {
   const [settings, setSettings] = useState<PublicSettings | null>(null);
+  const [mapAndLogoSettings, setMapAndLogoSettings] = useState<MapAndLogoSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+ useEffect(() => {
+
     const fetchSettings = async () => {
       try {
         setLoading(true);
+        
+        // Fetch general settings
         const response = await settingsAPI.getPublicSettings();
         if (response.success) {
           setSettings(response.data as PublicSettings);
         } else {
           setError(response.message || 'Failed to load settings');
         }
+        
+        // Fetch map and logo settings for the logo
+        const mapLogoResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/public/map-logo`);
+        if (mapLogoResponse.ok) {
+          const mapLogoData = await mapLogoResponse.json();
+          if (mapLogoData.success && mapLogoData.data) {
+            setMapAndLogoSettings(mapLogoData.data);
+          }
+        }
+        
       } catch (err) {
         setError('An error occurred while fetching settings');
         console.error(err);
@@ -37,7 +58,6 @@ export default function Footer() {
 
     fetchSettings();
   }, []);
-
   if (loading) {
     return (
       <footer className="bg-black text-white border-t border-orange-500/30 py-16">
@@ -74,25 +94,36 @@ export default function Footer() {
   const customerServiceLinks = settings.footerLinks && settings.footerLinks.length > 0 
     ? settings.footerLinks 
     : defaultCustomerServiceLinks;
+  const logoUrl = mapAndLogoSettings?.logo 
+    ? `${process.env.NEXT_PUBLIC_BASE_URL}/uploads/${mapAndLogoSettings.logo}`
+    : null;
 
   return (
     <footer className="bg-black text-white border-t border-orange-500/30 py-12 sm:py-16 md:py-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
-          {/* Company Info */}
+         {/* Company Info */}
           <div className="text-center sm:text-left">
             <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-3 sm:space-y-0 sm:space-x-4 mb-4">
-              <div className=" scale-220">
-                <Image
-                  src="/images/logo1.webp"
-                  alt="products logo2"
-                  width={100}
-                  height={100}
-                  priority
-                  className="rounded-lg"
-                />
-              </div>
-              <h3 className={`${markoOne.className} text-xl sm:text-2xl text-white`}>{settings.siteName}</h3>
+              {logoUrl ? (
+                <div className="scale-200">
+                  <img
+                    src={logoUrl}
+                    alt={mapAndLogoSettings?.logoAlt || 'Company Logo'}
+                    width={100}
+                    height={100}
+                    className="rounded-lg object-contain ml-0 sm:ml-10"
+                    onError={(e) => {
+                      console.error('Footer logo failed to load:', logoUrl);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="w-24 h-24 bg-orange-400 rounded-full flex items-center justify-center text-black font-black text-2xl uppercase">
+                  {settings.siteName?.charAt(0) || 'A'}
+                </div>
+              )}
             </div>
             <p className={`${markoOne.className} text-white/60 text-sm sm:text-base leading-relaxed max-w-xs mx-auto sm:mx-0`}>
               {settings.siteDescription}
@@ -135,29 +166,47 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact Info */}
-          <div className="text-center sm:text-left">
-            <h3 className={`${markoOne.className} text-lg sm:text-xl md:text-2xl mb-4 sm:mb-6 text-orange-400`}>Contact Us</h3>
-            <ul className="space-y-4 sm:space-y-5">
-              <li className={`${markoOne.className} text-white/70 text-sm sm:text-base flex items-center justify-center sm:justify-start`}>
-                <svg className="w-5 h-5 mr-3 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <span className="break-all">{settings.contactEmail}</span>
-              </li>
-              <li className={`${markoOne.className} text-white/70 text-sm sm:text-base flex items-center justify-center sm:justify-start`}>
-                <svg className="w-5 h-5 mr-3 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                {settings.contactNumber}
-              </li>
-              <li className={`${markoOne.className} text-white/70 text-sm sm:text-base flex items-center justify-center sm:justify-start`}>
-                <svg className="w-5 h-5 mr-3 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {settings.businessHours}
-              </li>
-            </ul>
+        
+   {/* Contact Info */}
+<div className="text-center sm:text-left">
+  <h3 className={`${markoOne.className} text-lg sm:text-xl md:text-2xl mb-4 sm:mb-6 text-orange-400`}>Contact Us</h3>
+  <ul className="space-y-4 sm:space-y-5">
+    {/* Email */}
+    <li className={`${markoOne.className} text-white/70 text-sm sm:text-base flex items-center justify-center sm:justify-start`}>
+      <svg className="w-5 h-5 mr-3 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+      <span className="break-all">{settings?.contactEmail}</span>
+    </li>
+    
+    {/* Phone */}
+    <li className={`${markoOne.className} text-white/70 text-sm sm:text-base flex items-center justify-center sm:justify-start`}>
+      <svg className="w-5 h-5 mr-3 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+      </svg>
+      {settings?.callNumber || settings?.whatsappNumber || settings?.contactNumber }
+    </li>
+    
+    {/* Business Hours */}
+    <li className={`${markoOne.className} text-white/70 text-sm sm:text-base flex items-center justify-center sm:justify-start`}>
+      <svg className="w-5 h-5 mr-3 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      {settings?.businessHours}
+    </li>
+    
+    {/* Address - NEW */}
+    <li className={`${markoOne.className} text-white/70 text-sm sm:text-base flex items-start justify-center sm:justify-start`}>
+      <svg className="w-5 h-5 mr-3 text-orange-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <span className="break-words">
+        {settings?.companyAddress}
+      </span>
+    </li>
+  </ul>
+
 
             {/* Social Icons */}
             <div className="mt-6 sm:mt-8 flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3">
