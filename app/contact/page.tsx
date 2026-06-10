@@ -6,7 +6,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import EnquirySection from "@/components/home/EnquirySection";
 import { MapPin, Phone, Clock, Mail } from "lucide-react"
 
-// API base URL - remove trailing slash and avoid duplicate /api
+// API base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 interface SettingsData {
@@ -23,38 +23,44 @@ export default function ContactPage() {
   const [settings, setSettings] = useState<SettingsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [mapSettings, setMapSettings] = useState<{ mapEmbedUrl?: string; isActive?: boolean } | null>(null);
+  
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         setLoading(true);
-        // Make sure we don't have duplicate /api
-        const apiUrl = `${API_BASE_URL}/settings/public`;
-        console.log("Fetching from:", apiUrl); // Debug log
         
-        const response = await fetch(apiUrl);
+        // Fetch general settings
+        const settingsApiUrl = `${API_BASE_URL}/settings/public`;
+        const settingsResponse = await fetch(settingsApiUrl);
         
-        // Check if response is OK before trying to parse JSON
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        // Fetch map & logo settings
+        const mapApiUrl = `${API_BASE_URL}/public/map-logo`;
+        const mapResponse = await fetch(mapApiUrl);
+        
+        // Check if responses are ok
+        if (!settingsResponse.ok) {
+          throw new Error(`Settings API error! status: ${settingsResponse.status}`);
         }
         
-        // Check content type
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Server did not return JSON. Check if the endpoint exists.");
+        if (!mapResponse.ok) {
+          throw new Error(`Map API error! status: ${mapResponse.status}`);
         }
         
-        const data = await response.json();
+        const settingsData = await settingsResponse.json();
+        const mapData = await mapResponse.json();
         
-        if (data.success) {
-          setSettings(data.data);
-        } else {
-          setError(data.message || "Failed to load settings");
+        if (settingsData.success) {
+          setSettings(settingsData.data);
         }
+        
+        if (mapData.success) {
+          setMapSettings(mapData.data);
+        }
+        
       } catch (err) {
         console.error("Error fetching settings:", err);
-        setError("Could not load contact information. Please try again later.");
+        setError("Could not load contact information.");
       } finally {
         setLoading(false);
       }
@@ -63,7 +69,7 @@ export default function ContactPage() {
     fetchSettings();
   }, []);
 
-  // Helper function to get phone number (prefer callNumber, then whatsappNumber, then contactNumber)
+  // Helper function to get phone number
   const getPhoneNumber = () => {
     if (settings?.callNumber) return settings.callNumber;
     if (settings?.whatsappNumber) return settings.whatsappNumber;
@@ -71,10 +77,9 @@ export default function ContactPage() {
     return "98844 96177"; // Fallback
   };
 
-  // Parse business hours - handle both string format and display
+  // Parse business hours
   const getBusinessHours = () => {
     if (settings?.businessHours) {
-      // If businessHours contains a dash or formatting, split it for display
       const hours = settings.businessHours;
       if (hours.includes("·") || hours.includes("-")) {
         const parts = hours.split("·").map(p => p.trim());
@@ -82,7 +87,6 @@ export default function ContactPage() {
           return { days: parts[0], time: parts[1] };
         }
       }
-      // Try to split by dash
       if (hours.includes("-")) {
         const parts = hours.split("-").map(p => p.trim());
         if (parts.length === 2) {
@@ -95,17 +99,6 @@ export default function ContactPage() {
   };
 
   const businessHoursObj = getBusinessHours();
-
-  // Get website domain from email or use fallback
-  const getWebsiteDomain = () => {
-    if (settings?.contactEmail) {
-      const domain = settings.contactEmail.split("@")[1];
-      return domain;
-    }
-    return "anmrs.com";
-  };
-
-  // Get display email
   const getDisplayEmail = () => {
     if (settings?.contactEmail) {
       return settings.contactEmail;
@@ -113,11 +106,9 @@ export default function ContactPage() {
     return "id@anmrs.com";
   };
 
-  // Get address lines from company address
   const getAddressLines = () => {
     if (settings?.companyAddress) {
       const address = settings.companyAddress;
-      // Split by common delimiters: commas and newlines
       const parts = address.split(",").map(p => p.trim());
       if (parts.length >= 3) {
         return {
@@ -137,11 +128,8 @@ export default function ContactPage() {
 
   const addressLines = getAddressLines();
 
-  // Format phone number for display (add space if needed)
   const formatPhoneNumber = (phone: string) => {
-    // If it already has a space or is in a formatted way, return as is
     if (phone.includes(" ")) return phone;
-    // If it's 10 digits, format as XXXX XXXXX
     if (/^\d{10}$/.test(phone.replace(/[^0-9]/g, ""))) {
       const digits = phone.replace(/[^0-9]/g, "");
       return `${digits.slice(0, 5)} ${digits.slice(5)}`;
@@ -175,7 +163,9 @@ export default function ContactPage() {
   const phoneNumber = getPhoneNumber();
   const formattedPhone = formatPhoneNumber(phoneNumber);
   const displayEmail = getDisplayEmail();
-  const websiteDomain = getWebsiteDomain();
+
+  // Get map URL with fallback
+  const mapEmbedUrl = mapSettings?.mapEmbedUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.234567891234!2d80.1394!3d12.9455!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a525f123456789%3A0x123456789abcdef!2sSanjay%20Gandhi%20Nagar%2C%20Chromepet%2C%20Chennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1625484839282!5m2!1sen!2sin";
 
   return (
     <motion.div 
@@ -344,7 +334,7 @@ export default function ContactPage() {
                 className="h-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-hidden shadow-2xl grayscale hover:grayscale-0"
               >
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.234567891234!2d80.1394!3d12.9455!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a525f123456789%3A0x123456789abcdef!2sSanjay%20Gandhi%20Nagar%2C%20Chromepet%2C%20Chennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1625484839282!5m2!1sen!2sin"
+                  src={mapEmbedUrl}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}

@@ -8,6 +8,7 @@ import EnquirySection from '@/components/home/EnquirySection';
 import ServicesSection from '@/components/home/ServicesSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
 import StatsCounter from '@/components/home/StatsCounter';
+import DesignUploadSection from '@/components/home/DesignUploadSection';
 
 // ✅ SERVER COMPONENT - Home Page
 export default async function HomePage() {
@@ -36,13 +37,13 @@ export default async function HomePage() {
       
 
       <ServicesSection/>
-      
+   
       {/* Philosophy Section */}
       <PhilosophySection />
 
       {/* Why Choose Us Section */}
       <WhyChooseUsSection />
-      
+         <DesignUploadSection/>
       <TestimonialsSection/>
       
       <EnquirySection/>
