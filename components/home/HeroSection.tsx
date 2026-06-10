@@ -198,7 +198,7 @@ export default function HeroSection() {
           fill
           className="object-cover opacity-80"
           priority
-          quality={100}
+          quality={75}
         />
       </div>
 

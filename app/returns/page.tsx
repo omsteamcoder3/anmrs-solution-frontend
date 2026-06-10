@@ -87,7 +87,7 @@ export default function ReturnsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-22">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(223,115,14)] mx-auto mb-4"></div>
@@ -99,7 +99,7 @@ export default function ReturnsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-32">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">

@@ -33,7 +33,7 @@ export default function CartPage() {
 
   if (!cart.items || cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-white py-8 sm:py-12 cursor-pointer">
+      <div className="min-h-screen bg-white py-8 sm:py-42 cursor-pointer">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-2xl mx-auto text-center bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
             <svg className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,7 +54,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-8 sm:py-12 ">
+    <div className="min-h-screen bg-white py-8 sm:py-22 ">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl  text-gray-900">Shopping Cart</h1>

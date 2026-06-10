@@ -357,7 +357,7 @@ export default function UserProfile() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#f2f2f2] py-12">
+      <div className="min-h-screen bg-[#f2f2f2] py-42">
         <div className="container mx-auto px-4">
           <div className="bg-white rounded-lg shadow-md p-8 text-center border border-gray-300">
             <div className="text-red-600 mb-4 font-medium">{error}</div>
@@ -374,7 +374,7 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f2f2f2] py-12">
+    <div className="min-h-screen bg-[#f2f2f2] py-32">
       <div className="container mx-auto px-4">
         {/* Header Section */}
         <div className="mb-8">

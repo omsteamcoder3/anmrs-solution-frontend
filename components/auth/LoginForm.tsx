@@ -33,7 +33,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-12">
+    <div className="min-h-screen bg-white flex items-center justify-center py-32">
       <div className="container mx-auto px-4">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-md border border-gray-200 p-8">
           {/* Header */}

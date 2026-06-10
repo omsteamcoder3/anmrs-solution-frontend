@@ -23,7 +23,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
   return (
     <div className="min-h-screen bg-orange-400">
       {/* Header Section */}
-      <section className="py-12 border-b border-orange-500/20 shadow-sm bg-black">
+      <section className="py-12 sm:py-24 border-b border-orange-500/20 shadow-sm bg-black">
         <div className="container mx-auto px-4 text-center">
           <h1 
             className={`${markoOne.className} text-4xl md:text-5xl lg:text-6xl text-white mb-3 drop-shadow-lg`}

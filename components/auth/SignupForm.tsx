@@ -127,7 +127,7 @@ export default function SignupForm() {
   // Show loading state during initial render
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-white flex items-center justify-center py-14 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-8 space-y-6 sm:space-y-8">
             <div className="text-center">
@@ -141,7 +141,7 @@ export default function SignupForm() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white flex items-center justify-center py-34 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-8 space-y-6 sm:space-y-8">
           {/* Header */}
