@@ -122,7 +122,7 @@ export default function OrderSuccessPage() {
 
   // Show success state
   return (
-    <div className="min-h-screen bg-[#f2f2f2] flex items-center justify-center py-12">
+    <div className="min-h-screen bg-[#f2f2f2] flex items-center justify-center py-32">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center bg-white rounded-lg shadow-md p-8 border border-gray-300">
           <div className="w-16 h-16 bg-[rgb(189,75,0)]/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-[rgb(189,75,0)]/20">

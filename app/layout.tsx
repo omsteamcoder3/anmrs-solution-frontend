@@ -36,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
       settings?.siteDescription ||
       '',
     keywords: settings?.metaKeywords?.join(', ') || '',
-    icons: { icon: '/images/main.jpg' },
+    icons: { icon: '/images/logo1.webp' },
   }
 }
 

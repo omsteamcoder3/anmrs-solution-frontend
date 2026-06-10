@@ -54,7 +54,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-8 sm:py-22 ">
+    <div className="min-h-screen bg-white py-8 sm:py-32 ">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl  text-gray-900">Shopping Cart</h1>

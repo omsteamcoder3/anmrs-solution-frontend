@@ -17,6 +17,7 @@ interface CartContextType {
   removeFromCart: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
   refreshCart: () => Promise<void>;
+   setBuyNowMode: (mode: boolean) => void; 
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -48,7 +49,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [addingProductId, setAddingProductId] = useState<string | null>(null);
   const { user, loading: authLoading } = useAuth();
-
+  const [buyNowMode, setBuyNowMode] = useState(false);
   // ✅ FIX: Properly determine if user is guest (check both user and token)
   const isGuest = !user;
 
@@ -343,7 +344,8 @@ const addToCart = async (product: Product, quantity: number, selectedVariant?: P
     updateCartItem,
     removeFromCart,
     clearCart,
-    refreshCart
+    refreshCart,
+    setBuyNowMode 
   };
 
   return (
