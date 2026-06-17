@@ -14,9 +14,15 @@ import {
   ArrowLeft,
   Printer,
   Download,
-  Home
+  Home,
+  Truck,
+  Building2,
+  Wallet,
+  CreditCard,
+  MapPin,
+  Clock,
+  DollarSign
 } from 'lucide-react';
-
 interface DesignFile {
   fileName: string;
   fileType: string;
@@ -42,6 +48,17 @@ interface OrderDetails {
   status: string;
   createdAt: string;
   submittedAt: string;
+   // NEW FIELDS
+  deliveryMethod?: 'pickup' | 'door_delivery';
+  paymentMethod?: 'cod' | 'razorpay';
+  deliveryAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  deliveryCharge?: number;
+  paymentStatus?: string;
 }
 
 const OrderConfirmationPage = () => {
@@ -98,7 +115,18 @@ const OrderConfirmationPage = () => {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
+const getImageUrl = (imagePath: string): string | undefined => {
+  if (!imagePath) return undefined;
 
+  // already full url
+  if (imagePath.startsWith('http')) return imagePath;
+
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+  
+  if (!BASE_URL) return undefined;
+
+  return `${BASE_URL}${imagePath}`;
+}
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -243,7 +271,87 @@ const OrderConfirmationPage = () => {
               </div>
             </div>
           </div>
-
+{/* Delivery & Payment Information */}
+{(order.deliveryMethod || order.paymentMethod) && (
+  <div className="p-6 border-b border-zinc-800">
+    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+      <Truck className="w-5 h-5 text-orange-500" />
+      Delivery & Payment
+    </h3>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Delivery Method - Show only what user selected */}
+      <div>
+        <p className="text-zinc-500 text-sm mb-2">Delivery Method</p>
+        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
+          order.deliveryMethod === 'door_delivery' 
+            ? 'bg-orange-500/20 text-orange-400' 
+            : 'bg-green-500/20 text-green-400'
+        }`}>
+          {order.deliveryMethod === 'door_delivery' ? (
+            <Truck className="w-4 h-4" />
+          ) : (
+            <Building2 className="w-4 h-4" />
+          )}
+          <span className="capitalize">
+            {order.deliveryMethod === 'door_delivery' ? 'Door Delivery' : 'Pickup from Office'}
+          </span>
+        </div>
+        
+        {/* Delivery Charge - Only show if door delivery */}
+        {order.deliveryMethod === 'door_delivery' && order.deliveryCharge && order.deliveryCharge > 0 && (
+          <p className="text-zinc-400 text-sm mt-2 flex items-center gap-1">
+            <DollarSign className="w-3 h-3" />
+            Delivery Charge: <span className="text-orange-400 font-semibold">₹{order.deliveryCharge}</span>
+          </p>
+        )}
+      </div>
+      
+      {/* Payment Method - Show ONLY what user selected */}
+      <div>
+        <p className="text-zinc-500 text-sm mb-2">Payment Method</p>
+        {order.paymentMethod === 'cod' ? (
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400">
+            <DollarSign className="w-4 h-4" />
+            <span>Cash on Delivery</span>
+          </div>
+        ) : order.paymentMethod === 'razorpay' ? (
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-purple-500/20 text-purple-400">
+            <CreditCard className="w-4 h-4" />
+            <span>Razorpay (Online)</span>
+          </div>
+        ) : null}
+        
+        {/* Payment Status - Only show if exists */}
+        {order.paymentStatus && (
+          <p className="text-zinc-400 text-sm mt-2">
+            Payment Status: 
+            <span className={`ml-1 font-semibold ${
+              order.paymentStatus === 'paid' ? 'text-green-400' : 
+              order.paymentStatus === 'failed' ? 'text-red-400' : 'text-yellow-400'
+            }`}>
+              {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+            </span>
+          </p>
+        )}
+      </div>
+    </div>
+    
+    {/* Delivery Address (only if door delivery) */}
+    {order.deliveryMethod === 'door_delivery' && order.deliveryAddress && (
+      <div className="mt-4 p-4 bg-zinc-800/30 rounded-xl">
+        <p className="text-zinc-400 text-sm mb-2 flex items-center gap-1">
+          <MapPin className="w-3 h-3" /> Delivery Address
+        </p>
+        <p className="text-white text-sm">
+          {order.deliveryAddress.street}<br />
+          {order.deliveryAddress.city}, {order.deliveryAddress.state}<br />
+          Pincode: {order.deliveryAddress.pincode}
+        </p>
+      </div>
+    )}
+  </div>
+)}
           {/* Card Details (if provided) */}
           {(order.additionalText?.cardHolderName || order.additionalText?.companyName) && (
             <div className="p-6 border-b border-zinc-800">
@@ -276,29 +384,76 @@ const OrderConfirmationPage = () => {
               </div>
             </div>
           )}
-
-          {/* Uploaded Files */}
-          <div className="p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Uploaded Files</h3>
-            <div className="space-y-3">
-              {order.designFiles?.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-zinc-950 rounded-xl border border-zinc-800">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-orange-500" />
-                    <div>
-                      <p className="text-white text-sm font-medium">{file.fileName}</p>
-                      <p className="text-zinc-500 text-xs">
-                        {file.fileType} • {formatFileSize(file.fileSize)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="px-2 py-1 bg-zinc-800 rounded text-xs text-zinc-400">
-                    File {index + 1}
-                  </div>
-                </div>
-              ))}
+{/* Uploaded Files - Grid Layout with Large Previews */}
+<div className="p-6">
+  <h3 className="text-lg font-semibold text-white mb-4">Uploaded Files</h3>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {order.designFiles?.map((file, index) => {
+      const isImage = file.fileType === 'WEBP' || file.fileType === 'JPG' || file.fileType === 'PNG' || file.fileType === 'JPEG';
+      // Fix: Use BASE_URL not API_URL, and remove /api from path
+      const imageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/uploads/designs/${file.fileName}`;
+      
+      return (
+        <div key={index} className="bg-zinc-950 rounded-xl border border-zinc-800 overflow-hidden group">
+          {/* Image Preview Area */}
+          <div className="relative h-48 bg-zinc-900">
+            {isImage ? (
+              <img
+                src={getImageUrl(imageUrl)}  // Fix: Call the function with the URL
+                alt={`Design ${index + 1}`}
+                className="w-full h-full object-contain p-2"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                  const parent = (e.target as HTMLImageElement).parentElement;
+                  if (parent) {
+                    const fallback = document.createElement('div');
+                    fallback.className = 'w-full h-full flex items-center justify-center';
+                    fallback.innerHTML = '<span class="text-zinc-500 text-xs">Image not available</span>';
+                    parent.appendChild(fallback);
+                  }
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <FileText className="w-16 h-16 text-orange-500" />
+              </div>
+            )}
+            
+            {/* Overlay on hover */}
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+              {isImage && (
+                <button
+                  onClick={() => window.open(imageUrl, '_blank')}
+                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg text-white text-sm font-medium transition-colors"
+                >
+                  View Full Size
+                </button>
+              )}
+              <a
+                href={imageUrl}
+                download={file.fileName}
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-sm font-medium transition-colors"
+              >
+                Download
+              </a>
             </div>
           </div>
+          
+          {/* File Info */}
+          <div className="p-3">
+            <p className="text-white text-sm font-medium truncate">{file.fileName}</p>
+            <div className="flex justify-between items-center mt-1">
+              <p className="text-zinc-500 text-xs">
+                {file.fileType} • {formatFileSize(file.fileSize)}
+              </p>
+              <span className="text-zinc-600 text-xs">File {index + 1}</span>
+            </div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
         </motion.div>
 
         {/* Email Notification Message */}

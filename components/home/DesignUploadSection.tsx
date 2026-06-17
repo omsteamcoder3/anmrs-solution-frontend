@@ -15,9 +15,16 @@ import {
   Image as ImageIcon,
   Trash2,
   Eye,
-  Phone
+  Phone,
+  Truck,
+  Home,
+  CreditCard,
+  Wallet,
+  MapPin,
+  Briefcase,
+  AlertCircle
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DesignFile {
   file: File;
@@ -37,6 +44,8 @@ interface DesignOrderData {
   phoneNumber: string;
   specialInstructions: string;
   designFiles: DesignFile[];
+  deliveryMethod: 'pickup' | 'door_delivery';
+  paymentMethod: 'cod' | 'razorpay';
 }
 
 const DesignUploadSection: React.FC = () => {
@@ -64,47 +73,41 @@ const DesignUploadSection: React.FC = () => {
     companyName: '',
     phoneNumber: '',
     specialInstructions: '',
-    designFiles: []
+    designFiles: [],
+    deliveryMethod: 'pickup',
+    paymentMethod: 'cod'
   });
 
+  const [deliveryAddress, setDeliveryAddress] = useState({
+    street: '',
+    city: '',
+    state: '',
+    pincode: ''
+  });
+  
   const [customSize, setCustomSize] = useState({ width: 85.6, height: 54 });
 
-  // Check login status on component mount
   useEffect(() => {
     const checkLoginStatus = () => {
       const token = localStorage.getItem('token');
       const currentUserStr = localStorage.getItem('currentUser');
       
-      console.log('Checking login status...');
-      console.log('Token exists:', !!token);
-      console.log('currentUser exists:', !!currentUserStr);
-      
       if (token && currentUserStr) {
         try {
           const currentUser = JSON.parse(currentUserStr);
-          
           if (currentUser && currentUser._id) {
             setIsLoggedIn(true);
             setUserId(currentUser._id);
             setUserName(currentUser.name || '');
             setUserEmail(currentUser.email || '');
             setUserPhone(currentUser.phone || '');
-            
-            // Auto-fill phone number if user has it
             if (currentUser.phone) {
               setFormData(prev => ({ ...prev, phoneNumber: currentUser.phone }));
             }
-            
-            console.log('User logged in with ID:', currentUser._id);
-          } else {
-            setIsLoggedIn(false);
           }
         } catch (error) {
           console.error('Error parsing currentUser:', error);
-          setIsLoggedIn(false);
         }
-      } else {
-        setIsLoggedIn(false);
       }
     };
     
@@ -146,25 +149,14 @@ const DesignUploadSection: React.FC = () => {
     setFileError('');
     setFormData(prev => ({
       ...prev,
-      designFiles: [...prev.designFiles, {
-        file: file,
-        preview: preview,
-        name: file.name,
-        size: file.size,
-        type: file.type
-      }]
+      designFiles: [...prev.designFiles, { file, preview, name: file.name, size: file.size, type: file.type }]
     }));
   };
 
   const removeFile = (index: number) => {
     const fileToRemove = formData.designFiles[index];
-    if (fileToRemove.preview) {
-      URL.revokeObjectURL(fileToRemove.preview);
-    }
-    setFormData(prev => ({
-      ...prev,
-      designFiles: prev.designFiles.filter((_, i) => i !== index)
-    }));
+    if (fileToRemove.preview) URL.revokeObjectURL(fileToRemove.preview);
+    setFormData(prev => ({ ...prev, designFiles: prev.designFiles.filter((_, i) => i !== index) }));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -184,11 +176,7 @@ const DesignUploadSection: React.FC = () => {
       const pendingOrder = {
         ...formData,
         customSize: formData.size === 'Custom' ? customSize : null,
-        designFiles: formData.designFiles.map(f => ({
-          name: f.name,
-          size: f.size,
-          type: f.type
-        }))
+        designFiles: formData.designFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
       };
       sessionStorage.setItem('pendingDesignOrder', JSON.stringify(pendingOrder));
       router.push('/signup?redirect=/design-upload&message=Please sign up to submit your order');
@@ -205,23 +193,27 @@ const DesignUploadSection: React.FC = () => {
     
     const submitData = new FormData();
     
-    // Append all files
     formData.designFiles.forEach((designFile, index) => {
       submitData.append(`designFile${index + 1}`, designFile.file);
     });
     
-    // Append other data
     submitData.append('quantity', formData.quantity.toString());
     submitData.append('size', formData.size);
     submitData.append('material', formData.material);
     submitData.append('cardHolderName', formData.cardHolderName);
     submitData.append('designation', formData.designation);
     submitData.append('companyName', formData.companyName);
-    submitData.append('userPhone', formData.phoneNumber); // Send phone number from form
+    submitData.append('userPhone', formData.phoneNumber);
     submitData.append('specialInstructions', formData.specialInstructions);
     submitData.append('userId', userId);
     submitData.append('userName', userName);
     submitData.append('userEmail', userEmail);
+    submitData.append('deliveryMethod', formData.deliveryMethod);
+    submitData.append('paymentMethod', formData.paymentMethod);
+    
+    if (formData.deliveryMethod === 'door_delivery') {
+      submitData.append('deliveryAddress', JSON.stringify(deliveryAddress));
+    }
     
     if (formData.size === 'Custom') {
       submitData.append('customWidth', customSize.width.toString());
@@ -230,39 +222,26 @@ const DesignUploadSection: React.FC = () => {
 
     try {
       const interval = setInterval(() => setUploadProgress(p => p < 90 ? p + 10 : p), 300);
-      
       const token = localStorage.getItem('token');
       const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/design-orders/submit`;
       
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
         body: submitData
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server returned ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Server returned ${response.status}`);
       const data = await response.json();
+      
       clearInterval(interval);
       setUploadProgress(100);
 
       if (data.success) {
         setSubmitMessage({ type: 'success', text: `Order submitted! Order #: ${data.order.orderNumber}` });
-        
-        formData.designFiles.forEach(file => {
-          if (file.preview) URL.revokeObjectURL(file.preview);
-        });
-        
+        formData.designFiles.forEach(file => { if (file.preview) URL.revokeObjectURL(file.preview); });
         sessionStorage.removeItem('pendingDesignOrder');
-        
-        setTimeout(() => {
-          router.push(`/order-confirmation/${data.order.id}`);
-        }, 2000);
+        setTimeout(() => router.push(`/order-confirmation/${data.order.id}`), 2000);
       } else {
         setSubmitMessage({ type: 'error', text: data.message || 'Submission failed' });
         setIsSubmitting(false);
@@ -277,314 +256,182 @@ const DesignUploadSection: React.FC = () => {
   };
 
   return (
-    <section
-     id="design-upload-section"
-    className="min-h-screen bg-[#0a0a0a] text-zinc-100 py-12 sm:py-20 px-3 sm:px-6">
-      
+    <section id="design-upload-section" className="min-h-screen bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] text-zinc-100 py-16 sm:py-24 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="text-center mb-10 sm:mb-16">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-orange-500 font-bold tracking-[0.2em] text-xs sm:text-sm mb-3 sm:mb-4 uppercase"
-          >
-            Custom Printing Studio
-          </motion.h2>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-2xl sm:text-4xl md:text-6xl font-black tracking-tighter mb-4 sm:mb-6 px-2"
-          >
-            BRING YOUR <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">VISION TO LIFE</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-zinc-400 max-w-2xl mx-auto text-base sm:text-lg px-4"
-          >
-            Upload your artwork (max 2 files) and configure your card specifications
-          </motion.p>
-          
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12 sm:mb-16"
+        >
+          <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 rounded-full px-4 py-1.5 mb-6">
+            <span className="text-orange-400 text-xs font-semibold tracking-wider">CUSTOM PRINTING STUDIO</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter mb-6">
+            BRING YOUR{' '}
+            <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+              VISION TO LIFE
+            </span>
+          </h1>
+          <p className="text-zinc-400 max-w-2xl mx-auto text-base sm:text-lg">
+            Upload your artwork and configure your card specifications. Our expert team will ensure perfect printing quality.
+          </p>
           {isLoggedIn && (
-            <div className="mt-3 sm:mt-4 inline-flex items-center gap-2 bg-green-500/20 text-green-400 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm">
-              <CheckCircle2 size={14} className="sm:w-4 sm:h-4" />
+            <div className="mt-4 inline-flex items-center gap-2 bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-sm">
+              <CheckCircle2 size={14} />
               Logged in as {userName || userEmail}
             </div>
           )}
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-12 items-start">
-          {/* Left Column */}
-          <div className="lg:col-span-4 space-y-6 sm:space-y-8">
-            <div className="bg-zinc-900/50 border border-zinc-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl">
-              <h4 className="flex items-center gap-2 font-bold mb-3 sm:mb-4 text-orange-500 uppercase text-[10px] sm:text-xs tracking-widest">
-                <Info size={14} className="sm:w-4 sm:h-4" /> Requirements
-              </h4>
-              <ul className="space-y-3 sm:space-y-4 text-xs sm:text-sm text-zinc-400">
-                <li className="flex gap-2 sm:gap-3">
-                  <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0 text-[8px] sm:text-[10px] text-white">1</div>
-                  <span>High resolution (300 DPI) for best results.</span>
-                </li>
-                <li className="flex gap-2 sm:gap-3">
-                  <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0 text-[8px] sm:text-[10px] text-white">2</div>
-                  <span>Keep text within 3mm of the edge (Safety zone).</span>
-                </li>
-                <li className="flex gap-2 sm:gap-3">
-                  <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0 text-[8px] sm:text-[10px] text-white">3</div>
-                  <span>Accepted: AI, CDR, PDF, PNG, JPG (Max 2 files).</span>
-                </li>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* Left Column - Guidelines */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="lg:col-span-4 space-y-6"
+          >
+            <div className="bg-zinc-900/40 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 sticky top-24">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-orange-500/20 rounded-xl">
+                  <Info size={20} className="text-orange-500" />
+                </div>
+                <h3 className="font-bold text-orange-400 uppercase text-sm tracking-wider">Design Guidelines</h3>
+              </div>
+              <ul className="space-y-4">
+                {[
+                  'High resolution (300 DPI) for best print quality',
+                  'Keep text within 3mm of the edge (Safety zone)',
+                  'Use CMYK color mode for accurate colors',
+                  'Supported formats: AI, CDR, PDF, PNG, JPG (Max 2 files)',
+                  'Maximum file size: 50MB per file'
+                ].map((item, idx) => (
+                  <li key={idx} className="flex gap-3 text-sm text-zinc-400">
+                    <div className="h-5 w-5 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-[10px] text-white font-bold">{idx + 1}</span>
+                    </div>
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right Column: Main Form */}
-          <div className="lg:col-span-8">
-            <form onSubmit={handleSubmit} className="bg-zinc-900 border border-zinc-800 rounded-2xl sm:rounded-[2rem] p-4 sm:p-8 md:p-12 shadow-2xl">
-              
-              {/* File Upload Area */}
-              <div className="mb-6 sm:mb-10">
-                <label className="block text-xs sm:text-sm font-semibold text-zinc-400 mb-2 sm:mb-3">
+          {/* Right Column - Main Form */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="lg:col-span-8"
+          >
+            <form onSubmit={handleSubmit} className="bg-zinc-900/40 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 sm:p-8">
+              {/* File Upload Section */}
+              <div className="mb-8">
+                <label className="block text-sm font-semibold text-zinc-300 mb-3">
                   Upload Design Files <span className="text-orange-500">(Max 2 files)</span>
                 </label>
-                
                 <div
                   onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
                   onDragLeave={() => setDragActive(false)}
-                  onDrop={(e) => { 
-                    e.preventDefault(); 
-                    setDragActive(false); 
-                    if (e.dataTransfer.files) {
-                      validateAndAddFile(e.dataTransfer.files[0]);
-                    }
-                  }}
+                  onDrop={(e) => { e.preventDefault(); setDragActive(false); validateAndAddFile(e.dataTransfer.files?.[0]); }}
                   onClick={() => fileInputRef.current?.click()}
-                  className={`
-                    relative group cursor-pointer overflow-hidden
-                    border-2 border-dashed rounded-2xl sm:rounded-3xl p-6 sm:p-10 transition-all duration-300
-                    ${dragActive ? 'border-orange-500 bg-orange-500/5' : 'border-zinc-700 hover:border-zinc-500 bg-zinc-950/50'}
-                    ${formData.designFiles.length > 0 ? 'border-green-500/50 bg-green-500/5' : ''}
-                  `}
+                  className={`relative cursor-pointer border-2 border-dashed rounded-xl p-8 transition-all duration-300
+                    ${dragActive ? 'border-orange-500 bg-orange-500/5' : 'border-zinc-700 hover:border-zinc-500 bg-zinc-800/30'}
+                    ${formData.designFiles.length > 0 ? 'border-green-500/50 bg-green-500/5' : ''}`}
                 >
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    className="hidden" 
-                    onChange={(e) => validateAndAddFile(e.target.files?.[0])}
-                    accept=".pdf,.jpg,.jpeg,.png,.ai,.cdr"
-                  />
-                  
+                  <input type="file" ref={fileInputRef} className="hidden" onChange={(e) => validateAndAddFile(e.target.files?.[0])} accept=".pdf,.jpg,.jpeg,.png,.ai,.cdr" />
                   <div className="flex flex-col items-center text-center">
-                    <div className={`h-12 w-12 sm:h-16 sm:w-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 transition-transform group-hover:scale-110 ${
-                      formData.designFiles.length > 0 ? 'bg-green-500/20 text-green-500' : 'bg-orange-500/10 text-orange-500'
+                    <div className={`p-4 rounded-full mb-4 transition-transform group-hover:scale-110 ${
+                      formData.designFiles.length > 0 ? 'bg-green-500/20' : 'bg-orange-500/20'
                     }`}>
-                      <Upload size={24} className="sm:w-8 sm:h-8" />
+                      <Upload size={32} className={formData.designFiles.length > 0 ? 'text-green-500' : 'text-orange-500'} />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">
+                    <h3 className="text-lg font-semibold mb-1">
                       {formData.designFiles.length === 0 ? 'Drop your designs here' : `${formData.designFiles.length}/2 files uploaded`}
                     </h3>
-                    <p className="text-zinc-500 text-xs sm:text-sm">or click to browse from your device</p>
-                    <p className="text-zinc-600 text-[10px] sm:text-xs mt-1 sm:mt-2">PDF, JPG, PNG, AI, CDR up to 50MB each</p>
+                    <p className="text-zinc-500 text-sm">or click to browse</p>
+                    <p className="text-zinc-600 text-xs mt-2">PDF, JPG, PNG, AI, CDR up to 50MB each</p>
                   </div>
                 </div>
-                
-                {fileError && (
-                  <p className="text-red-400 text-[11px] sm:text-xs mt-2 sm:mt-3 flex items-center gap-1 font-medium">
-                    <X size={12} className="sm:w-3.5 sm:h-3.5" /> {fileError}
-                  </p>
-                )}
+                {fileError && <p className="text-red-400 text-xs mt-3 flex items-center gap-1"><AlertCircle size={12} /> {fileError}</p>}
               </div>
 
-              {/* Uploaded Files Preview Section */}
-              {formData.designFiles.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 sm:mb-10"
-                >
-                  <h3 className="text-xs sm:text-sm font-semibold text-zinc-400 mb-3 sm:mb-4 flex items-center gap-2">
-                    <ImageIcon size={14} className="sm:w-4 sm:h-4" /> Uploaded Files ({formData.designFiles.length}/2)
-                  </h3>
-                  <div className="grid grid-cols-1 gap-3 sm:gap-4">
-                    {formData.designFiles.map((file, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="relative group bg-zinc-950 border border-zinc-800 rounded-xl sm:rounded-2xl overflow-hidden"
-                      >
-                        <div className="relative h-36 sm:h-48 bg-zinc-900">
-                          {file.preview ? (
-                            <img
-                              src={file.preview}
-                              alt={`Preview ${index + 1}`}
-                              className="w-full h-full object-contain"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-zinc-800/50">
-                              <FileText size={36} className="sm:w-12 sm:h-12 text-orange-500" />
-                            </div>
-                          )}
-                          
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 sm:gap-3">
-                            {file.preview && (
-                              <button
-                                type="button"
-                                onClick={() => setPreviewImage(file.preview)}
-                                className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-                              >
-                                <Eye size={16} className="sm:w-5 sm:h-5" />
-                              </button>
+              {/* Uploaded Files Preview */}
+              <AnimatePresence>
+                {formData.designFiles.length > 0 && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-8">
+                    <h3 className="text-sm font-semibold text-zinc-300 mb-3 flex items-center gap-2">
+                      <ImageIcon size={16} /> Uploaded Files ({formData.designFiles.length}/2)
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {formData.designFiles.map((file, index) => (
+                        <div key={index} className="bg-zinc-800/50 rounded-xl border border-zinc-700 overflow-hidden group">
+                          <div className="relative h-40 bg-zinc-900">
+                            {file.preview ? (
+                              <img src={file.preview} alt={`Preview ${index + 1}`} className="w-full h-full object-contain" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center"><FileText size={40} className="text-orange-500" /></div>
                             )}
-                            <button
-                              type="button"
-                              onClick={() => removeFile(index)}
-                              className="p-1.5 sm:p-2 bg-red-500/20 hover:bg-red-500/40 rounded-full transition-colors"
-                            >
-                              <Trash2 size={16} className="sm:w-5 sm:h-5 text-red-400" />
-                            </button>
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              {file.preview && (
+                                <button type="button" onClick={() => setPreviewImage(file.preview)} className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition">
+                                  <Eye size={18} />
+                                </button>
+                              )}
+                              <button type="button" onClick={() => removeFile(index)} className="p-2 bg-red-500/20 hover:bg-red-500/40 rounded-full transition">
+                                <Trash2 size={18} className="text-red-400" />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="p-3">
+                            <p className="text-sm font-medium text-zinc-300 truncate">{file.name}</p>
+                            <p className="text-xs text-zinc-500">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
                           </div>
                         </div>
-                        
-                        <div className="p-3 sm:p-4">
-                          <p className="text-xs sm:text-sm font-medium text-zinc-300 truncate">{file.name}</p>
-                          <p className="text-[10px] sm:text-xs text-zinc-500 mt-1">
-                            {(file.size / (1024 * 1024)).toFixed(2)} MB
-                          </p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-              {/* Image Preview Modal */}
-              {previewImage && (
-                <div
-                  className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-3 sm:p-4"
-                  onClick={() => setPreviewImage(null)}
-                >
-                  <div className="relative max-w-4xl max-h-[90vh]">
-                    <img
-                      src={previewImage}
-                      alt="Preview"
-                      className="w-full h-full object-contain"
-                    />
-                    <button
-                      onClick={() => setPreviewImage(null)}
-                      className="absolute top-2 right-2 sm:top-4 sm:right-4 p-1.5 sm:p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
-                    >
-                      <X size={18} className="sm:w-6 sm:h-6" />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-10">
-                {/* Product Settings */}
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="flex items-center gap-2 text-zinc-500 mb-1 sm:mb-2 uppercase text-[9px] sm:text-[10px] font-black tracking-[0.2em]">
-                    <Layers size={12} className="sm:w-3.5 sm:h-3.5" /> Product Specs
+              {/* Two Column Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {/* Left Column - Product Specs */}
+                <div className="space-y-5">
+                  <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
+                    <Layers size={16} className="text-orange-500" />
+                    <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Product Specifications</span>
                   </div>
                   
-                  <div className="space-y-1">
-                    <label className="text-[11px] sm:text-xs font-bold text-zinc-400 ml-1">Quantity</label>
-                    <input
-                      type="number"
-                      name="quantity"
-                      value={formData.quantity || ""}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          quantity: e.target.value === ""
-                            ? 1
-                            : parseInt(e.target.value, 10),
-                        }))
-                      }
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:border-orange-500 transition-colors"
-                    />
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-400 mb-1">Quantity</label>
+                    <input type="number" name="quantity" value={formData.quantity} onChange={(e) => setFormData(p => ({ ...p, quantity: parseInt(e.target.value) || 1 }))}
+                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-orange-500 transition" />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[11px] sm:text-xs font-bold text-zinc-400 ml-1">Card Size</label>
-                    <select
-                      name="size"
-                      value={formData.size}
-                      onChange={handleInputChange}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:border-orange-500 transition-colors appearance-none cursor-pointer"
-                    >
-                      <option value="CR80 (85.6mm × 54mm)">Standard (CR80)</option>
-                      <option value="CR79 (86mm × 54mm)">Large (CR79)</option>
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-400 mb-1">Card Size</label>
+                    <select name="size" value={formData.size} onChange={handleInputChange}
+                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-orange-500 transition">
+                      <option value="CR80 (85.6mm × 54mm)">Standard CR80 (85.6 × 54mm)</option>
+                      <option value="CR79 (86mm × 54mm)">Large CR79 (86 × 54mm)</option>
                       <option value="Custom">Custom Size</option>
                     </select>
                   </div>
 
                   {formData.size === 'Custom' && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="grid grid-cols-2 gap-3 sm:gap-4 pt-1 sm:pt-2">
-                      <div className="space-y-1">
-                        <label className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase">Width (mm)</label>
-                        <input type="number" step="0.1" value={customSize.width} onChange={(e) => setCustomSize(p => ({ ...p, width: parseFloat(e.target.value) }))} className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm focus:border-orange-500 outline-none" />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase">Height (mm)</label>
-                        <input type="number" step="0.1" value={customSize.height} onChange={(e) => setCustomSize(p => ({ ...p, height: parseFloat(e.target.value) }))} className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm focus:border-orange-500 outline-none" />
-                      </div>
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="grid grid-cols-2 gap-3">
+                      <div><label className="block text-xs text-zinc-400 mb-1">Width (mm)</label><input type="number" step="0.1" value={customSize.width} onChange={(e) => setCustomSize(p => ({ ...p, width: parseFloat(e.target.value) }))} className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-500" /></div>
+                      <div><label className="block text-xs text-zinc-400 mb-1">Height (mm)</label><input type="number" step="0.1" value={customSize.height} onChange={(e) => setCustomSize(p => ({ ...p, height: parseFloat(e.target.value) }))} className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-500" /></div>
                     </motion.div>
                   )}
-                </div>
 
-                {/* Personalization */}
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="flex items-center gap-2 text-zinc-500 mb-1 sm:mb-2 uppercase text-[9px] sm:text-[10px] font-black tracking-[0.2em]">
-                    <User size={12} className="sm:w-3.5 sm:h-3.5" /> Card Details
-                  </div>
-                  
-                  <div className="relative">
-                    <User className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-zinc-600 w-4 h-4 sm:w-[18px] sm:h-[18px]"/>
-                    <input
-                      type="text"
-                      name="cardHolderName"
-                      placeholder="Card Holder Name"
-                      value={formData.cardHolderName}
-                      onChange={handleInputChange}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:border-orange-500 transition-colors"
-                    />
-                  </div>
-
-                  <div className="relative">
-                    <Building2 className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-zinc-600 w-4 h-4 sm:w-[18px] sm:h-[18px]"/>
-                    <input
-                      type="text"
-                      name="companyName"
-                      placeholder="Company Name"
-                      value={formData.companyName}
-                      onChange={handleInputChange}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:border-orange-500 transition-colors"
-                    />
-                  </div>
-
-                  {/* Phone Number Field - NEW */}
-                  <div className="relative">
-<Phone className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-zinc-600 w-4 h-4 sm:w-[18px] sm:h-[18px]" />                    <input
-                      type="tel"
-                      name="phoneNumber"
-                      placeholder="Phone Number"
-                      value={formData.phoneNumber}
-                      onChange={handleInputChange}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:border-orange-500 transition-colors"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] sm:text-xs font-bold text-zinc-400 ml-1">Material Selection</label>
-                    <select
-                      name="material"
-                      value={formData.material}
-                      onChange={handleInputChange}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:border-orange-500 transition-colors appearance-none cursor-pointer"
-                    >
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-400 mb-1">Material</label>
+                    <select name="material" value={formData.material} onChange={handleInputChange}
+                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-orange-500 transition">
                       <option value="Premium Plastic">Premium Plastic</option>
                       <option value="Standard Plastic">Standard Plastic</option>
                       <option value="PVC">PVC - High Durability</option>
@@ -593,97 +440,160 @@ const DesignUploadSection: React.FC = () => {
                     </select>
                   </div>
                 </div>
+
+                {/* Right Column - Card Details */}
+                <div className="space-y-5">
+                  <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
+                    <User size={16} className="text-orange-500" />
+                    <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Card Information</span>
+                  </div>
+
+                  <div className="relative">
+                    <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input type="text" name="cardHolderName" placeholder="Card Holder Name" value={formData.cardHolderName} onChange={handleInputChange}
+                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition" />
+                  </div>
+
+                  <div className="relative">
+                    <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input type="text" name="companyName" placeholder="Company Name" value={formData.companyName} onChange={handleInputChange}
+                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition" />
+                  </div>
+
+                  <div className="relative">
+                    <Briefcase size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input type="text" name="designation" placeholder="Designation / Role" value={formData.designation} onChange={handleInputChange}
+                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition" />
+                  </div>
+
+                  <div className="relative">
+                    <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input type="tel" name="phoneNumber" placeholder="Phone Number" value={formData.phoneNumber} onChange={handleInputChange}
+                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition" />
+                  </div>
+                </div>
               </div>
 
-              {/* Designation Field - Added */}
-              <div className="mb-5 sm:mb-6 space-y-2">
-                <div className="flex items-center gap-2 text-zinc-500 mb-1 sm:mb-2 uppercase text-[9px] sm:text-[10px] font-black tracking-[0.2em]">
-                  <User size={12} className="sm:w-3.5 sm:h-3.5" /> Designation / Role
+              {/* Delivery & Payment Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {/* Delivery Method */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
+                    <Truck size={16} className="text-orange-500" />
+                    <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Delivery Method</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button type="button" onClick={() => setFormData(prev => ({ ...prev, deliveryMethod: 'pickup' }))}
+                      className={`p-3 rounded-xl border-2 transition-all text-center ${formData.deliveryMethod === 'pickup' ? 'border-orange-500 bg-orange-500/10 text-orange-500' : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'}`}>
+                      <Home size={20} className="mx-auto mb-1" />
+                      <span className="text-xs font-medium">Pickup from Office</span>
+                    </button>
+                    <button type="button" onClick={() => setFormData(prev => ({ ...prev, deliveryMethod: 'door_delivery' }))}
+                      className={`p-3 rounded-xl border-2 transition-all text-center ${formData.deliveryMethod === 'door_delivery' ? 'border-orange-500 bg-orange-500/10 text-orange-500' : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'}`}>
+                      <Truck size={20} className="mx-auto mb-1" />
+                      <span className="text-xs font-medium">Door Delivery</span>
+                    </button>
+                  </div>
                 </div>
-                <input
-                  type="text"
-                  name="designation"
-                  placeholder="Your Designation / Role (e.g., Software Engineer)"
-                  value={formData.designation}
-                  onChange={handleInputChange}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base focus:outline-none focus:border-orange-500 transition-colors"
-                />
+
+                {/* Payment Method */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
+                    <Wallet size={16} className="text-orange-500" />
+                    <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Payment Method</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button type="button" onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cod' }))}
+                      className={`p-3 rounded-xl border-2 transition-all text-center ${formData.paymentMethod === 'cod' ? 'border-orange-500 bg-orange-500/10 text-orange-500' : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'}`}>
+                      <Wallet size={20} className="mx-auto mb-1" />
+                      <span className="text-xs font-medium">Cash on Delivery</span>
+                    </button>
+                    <button type="button" onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'razorpay' }))}
+                      className={`p-3 rounded-xl border-2 transition-all text-center ${formData.paymentMethod === 'razorpay' ? 'border-orange-500 bg-orange-500/10 text-orange-500' : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'}`}>
+                      <CreditCard size={20} className="mx-auto mb-1" />
+                      <span className="text-xs font-medium">Razorpay</span>
+                    </button>
+                  </div>
+                </div>
               </div>
+
+              {/* Delivery Address */}
+              <AnimatePresence>
+                {formData.deliveryMethod === 'door_delivery' && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-8">
+                    <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <MapPin size={16} className="text-orange-500" />
+                        <h4 className="font-semibold text-orange-400">Delivery Address</h4>
+                      </div>
+                      <div className="space-y-3">
+                        <input type="text" placeholder="Street Address" value={deliveryAddress.street} onChange={(e) => setDeliveryAddress(p => ({ ...p, street: e.target.value }))}
+                          className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition" />
+                        <div className="grid grid-cols-2 gap-3">
+                          <input type="text" placeholder="City" value={deliveryAddress.city} onChange={(e) => setDeliveryAddress(p => ({ ...p, city: e.target.value }))}
+                            className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition" />
+                          <input type="text" placeholder="State" value={deliveryAddress.state} onChange={(e) => setDeliveryAddress(p => ({ ...p, state: e.target.value }))}
+                            className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition" />
+                        </div>
+                        <input type="text" placeholder="Pincode" value={deliveryAddress.pincode} onChange={(e) => setDeliveryAddress(p => ({ ...p, pincode: e.target.value }))}
+                          className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition" />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Special Instructions */}
-              <div className="mb-6 sm:mb-10 space-y-2">
-                <div className="flex items-center gap-2 text-zinc-500 mb-1 sm:mb-2 uppercase text-[9px] sm:text-[10px] font-black tracking-[0.2em]">
-                  <FileText size={12} className="sm:w-3.5 sm:h-3.5" /> Special Instructions
+              <div className="mb-8">
+                <div className="flex items-center gap-2 pb-2 border-b border-zinc-800 mb-3">
+                  <FileText size={16} className="text-orange-500" />
+                  <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Special Instructions</span>
                 </div>
-                <textarea
-                  rows={3} // Reduced rows for mobile
-                  name="specialInstructions"
-                  value={formData.specialInstructions}
-                  onChange={handleInputChange}
+                <textarea rows={3} name="specialInstructions" value={formData.specialInstructions} onChange={handleInputChange}
                   placeholder="Tell us about color profiles, coating preferences, or specific layout instructions..."
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base focus:outline-none focus:border-orange-500 transition-colors resize-none"
-                />
+                  className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition resize-none" />
               </div>
 
-              {/* Message Display */}
+              {/* Messages */}
               {submitMessage && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`mb-5 sm:mb-6 p-3 sm:p-4 rounded-xl text-xs sm:text-sm ${
-                    submitMessage.type === 'success' 
-                      ? 'bg-green-500/20 border border-green-500 text-green-400'
-                      : 'bg-red-500/20 border border-red-500 text-red-400'
-                  }`}
-                >
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`mb-6 p-4 rounded-xl text-sm ${submitMessage.type === 'success' ? 'bg-green-500/20 border border-green-500 text-green-400' : 'bg-red-500/20 border border-red-500 text-red-400'}`}>
                   {submitMessage.text}
                 </motion.div>
               )}
 
               {/* Progress Bar */}
               {isSubmitting && (
-                <div className="mb-5 sm:mb-6">
-                  <div className="flex justify-between text-[10px] sm:text-xs font-bold mb-1 sm:mb-2 uppercase tracking-tighter">
-                    <span>Uploading Design Assets</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <div className="w-full bg-zinc-800 h-1.5 sm:h-2 rounded-full overflow-hidden">
-                    <motion.div 
-                      className="bg-orange-500 h-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
+                <div className="mb-6">
+                  <div className="flex justify-between text-xs font-medium mb-2"><span>Uploading...</span><span>{uploadProgress}%</span></div>
+                  <div className="w-full bg-zinc-700 h-2 rounded-full overflow-hidden"><motion.div className="bg-orange-500 h-full" initial={{ width: 0 }} animate={{ width: `${uploadProgress}%` }} /></div>
                 </div>
               )}
 
               {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting || formData.designFiles.length === 0}
-                className="w-full group relative flex items-center justify-center gap-2 sm:gap-3 bg-orange-600 hover:bg-orange-500 disabled:bg-zinc-800 disabled:text-zinc-600 py-4 sm:py-6 rounded-xl sm:rounded-2xl text-base sm:text-lg font-black uppercase tracking-widest transition-all duration-300"
-              >
-                {isSubmitting ? (
-                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Initialize Print Order ({formData.designFiles.length}/2 files)
-                    <Send size={16} className="sm:w-5 sm:h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </>
-                )}
+              <button type="submit" disabled={isSubmitting || formData.designFiles.length === 0}
+                className={`w-full py-4 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-2 ${isSubmitting || formData.designFiles.length === 0 ? 'bg-zinc-700 cursor-not-allowed text-zinc-400' : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white transform hover:scale-[1.02]'}`}>
+                {isSubmitting ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Initialize Print Order ({formData.designFiles.length}/2 files) <Send size={18} /></>}
               </button>
 
               {!isLoggedIn && (
-                <div className="mt-5 sm:mt-6 p-3 sm:p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-center">
-                  <p className="text-orange-200 text-[10px] sm:text-xs font-medium">
-                    Authentication Required: You'll be prompted to sign in before final submission.
-                  </p>
+                <div className="mt-4 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20 text-center">
+                  <p className="text-orange-300 text-xs">Authentication Required: You'll be prompted to sign in before final submission.</p>
                 </div>
               )}
             </form>
-          </div>
+          </motion.div>
         </div>
       </div>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setPreviewImage(null)}>
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <img src={previewImage} alt="Preview" className="w-full h-full object-contain" />
+            <button onClick={() => setPreviewImage(null)} className="absolute top-4 right-4 p-2 bg-black/50 rounded-full hover:bg-black/70 transition"><X size={24} /></button>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
